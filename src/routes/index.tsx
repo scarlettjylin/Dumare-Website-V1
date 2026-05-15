@@ -44,6 +44,16 @@ const SLOTS = [
   { top: "68%", left: "48%" },
 ];
 
+// Mobile slots keep all tags well within the narrower visible area.
+const MOBILE_SLOTS = [
+  { top: "10%", left: "4%"  },
+  { top: "16%", left: "44%" },
+  { top: "38%", left: "10%" },
+  { top: "44%", left: "48%" },
+  { top: "66%", left: "4%"  },
+  { top: "72%", left: "40%" },
+];
+
 function MomentCarousel({ ready = false }: { ready?: boolean }) {
   // Each slot holds an index into MOMENTS. Initialize with distinct labels.
   const [slotMoments, setSlotMoments] = useState<number[]>(() =>
@@ -51,6 +61,15 @@ function MomentCarousel({ ready = false }: { ready?: boolean }) {
   );
   // Visibility per slot (fade in/out independently).
   const [visible, setVisible] = useState<boolean[]>(() => SLOTS.map(() => true));
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const activeSlots = isMobile ? MOBILE_SLOTS : SLOTS;
 
   useEffect(() => {
     if (!ready) return;
@@ -90,7 +109,7 @@ function MomentCarousel({ ready = false }: { ready?: boolean }) {
   return (
     <div className="relative aspect-[4/3] md:aspect-[4/5] rounded-2xl overflow-hidden">
 
-      {SLOTS.map((slot, slotIdx) => {
+      {activeSlots.map((slot, slotIdx) => {
         const m = MOMENTS[slotMoments[slotIdx]];
         const isVisible = visible[slotIdx];
         return (
@@ -98,6 +117,7 @@ function MomentCarousel({ ready = false }: { ready?: boolean }) {
             key={slotIdx}
             className="absolute transition-all duration-1000 ease-out"
             style={{
+              maxWidth: "48%",
               top: slot.top,
               left: slot.left,
               opacity: isVisible ? 1 : 0,
@@ -262,12 +282,12 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
-  const ITEM = isMobile ? 62 : 45;
+  const ITEM = isMobile ? 40 : 45;
   const GAP = 4;
   const STEP = ITEM + GAP;
   const OFFSET = (100 - ITEM) / 2;
   return (
-    <div className="relative aspect-[4/3] md:aspect-[4/5]">
+    <div className="relative aspect-[3/4] md:aspect-[4/5]">
       {/* iPad-style device frame */}
       <div className="absolute inset-0 rounded-[2rem] md:rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-2.5 md:p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
         {/* speaker dot */}
@@ -484,12 +504,21 @@ function StorySection({
 }) {
   const rotation = images && images.length > 1 ? images : null;
   const [activeIdx, setActiveIdx] = useState(0);
+  // zoomStarted: lets the first image animate its Ken Burns zoom on mount.
+  // Without this, the initial render snaps straight to scale(1.22) with no animation.
+  const [zoomStarted, setZoomStarted] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setZoomStarted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
   useEffect(() => {
     if (!rotation || !animationsReady) return;
+    // First swap at 2 s (feels alive quickly), then every 3.5 s.
+    const first = setTimeout(() => setActiveIdx((i) => (i + 1) % rotation.length), 2000);
     const id = setInterval(() => {
       setActiveIdx((i) => (i + 1) % rotation.length);
-    }, 4500);
-    return () => clearInterval(id);
+    }, 3500);
+    return () => { clearTimeout(first); clearInterval(id); };
   }, [rotation, animationsReady]);
 
   return (
@@ -518,7 +547,9 @@ function StorySection({
                       className="absolute inset-0 w-full h-full object-cover transition-all ease-out"
                       style={{
                         opacity: isActive ? 1 : 0,
-                        transform: isActive ? "scale(1.22)" : "scale(1.14)",
+                        // zoomStarted defers the active scale so CSS transition
+                        // actually fires on the first image (not an instant snap).
+                        transform: isActive && zoomStarted ? "scale(1.22)" : "scale(1.14)",
                         transitionDuration: isActive ? "5000ms, 1200ms" : "1200ms, 1200ms",
                         transitionProperty: "transform, opacity",
                       }}
