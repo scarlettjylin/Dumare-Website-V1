@@ -327,7 +327,7 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
               >
                 <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                   <div
-                    className="absolute inset-0 rounded-xl overflow-hidden border border-white/5 transition-all duration-500"
+                    className="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500"
                     style={{
                       transform: active ? "scale(1.06)" : "scale(0.86)",
                       opacity: active ? 1 : 0.45,
