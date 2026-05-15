@@ -246,11 +246,12 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
   );
 }
 
-function ScrollClips({ ready = false }: { ready?: boolean }) {
+function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean; readyOnMobile?: boolean }) {
   const [i, setI] = useState(0);
   const [animate, setAnimate] = useState(true);
+  const effectiveReady = isMobile ? readyOnMobile : ready;
   useEffect(() => {
-    if (!ready) return;
+    if (!effectiveReady) return;
     const advance = () => {
       setI((v) => {
         const next = v + 1;
@@ -271,7 +272,7 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
     advance();
     const id = setInterval(advance, 2400);
     return () => clearInterval(id);
-  }, [ready]);
+  }, [effectiveReady]);
   const loop = [...CLIPS, ...CLIPS, ...CLIPS];
   // Track viewport so we can use a taller card % on mobile (where the container is 4/3, wider).
   const [isMobile, setIsMobile] = useState(false);
@@ -744,11 +745,12 @@ function TasteShapes({ ready = false }: { ready?: boolean }) {
 }
 
 
-function AiTypingLine({ text, onStart }: { text: string; onStart?: () => void }) {
+function AiTypingLine({ text, onStart, onFinish }: { text: string; onStart?: () => void; onFinish?: () => void }) {
   const ref = useRef<HTMLParagraphElement>(null);
-  // Always-current ref so the timer closure never captures a stale callback.
+  // Always-current refs so timer closures never capture stale callbacks.
   const onStartRef = useRef(onStart);
-  useEffect(() => { onStartRef.current = onStart; });
+  const onFinishRef = useRef(onFinish);
+  useEffect(() => { onStartRef.current = onStart; onFinishRef.current = onFinish; });
 
   const [visible, setVisible] = useState(false);
   const [started, setStarted] = useState(false);
@@ -801,6 +803,7 @@ function AiTypingLine({ text, onStart }: { text: string; onStart?: () => void })
         last = now;
       }
       if (i < text.length) raf = requestAnimationFrame(tick);
+      else onFinishRef.current?.();
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
@@ -1027,6 +1030,7 @@ function PageAmbience() {
 function Landing() {
   const [tasteReady,         setTasteReady]         = useState(false);
   const [lessSearchingReady, setLessSearchingReady] = useState(false);
+  const [lessSearchingDone,  setLessSearchingDone]  = useState(false);
   const [momentReady,        setMomentReady]        = useState(false);
   const [profileReady,       setProfileReady]       = useState(false);
 
@@ -1064,7 +1068,7 @@ function Landing() {
         eyebrow="Less searching. More watching."
         title={<>Skip the homework. <span className="italic text-gradient-amber">Press play.</span></>}
         image={sceneMoment}
-        media={<ScrollClips ready={lessSearchingReady} />}
+        media={<ScrollClips ready={lessSearchingReady} readyOnMobile={lessSearchingDone} />}
         reverse
         body={
           <>
@@ -1073,7 +1077,7 @@ function Landing() {
               You ask friends, search on social media, and read reviews.{"\n"}
               Then you look for where to watch.
             </p>
-            <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly when something feels right, all in one place." onStart={() => setLessSearchingReady(true)} />
+            <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly when something feels right, all in one place." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
           </>
         }
       />
