@@ -282,7 +282,7 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
-  const ITEM = isMobile ? 28 : 45;
+  const ITEM = isMobile ? 55 : 45;
   const GAP = 4;
   const STEP = ITEM + GAP;
   const OFFSET = (100 - ITEM) / 2;
@@ -309,9 +309,12 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
               return (
                 <div
                   key={idx}
-                  className="relative shrink-0 w-full overflow-hidden rounded-xl border border-white/5"
+                  className="relative shrink-0 overflow-hidden rounded-xl border border-white/5"
                   style={{
                     height: `${ITEM}%`,
+                    width: isMobile ? "82%" : "100%",
+                    marginLeft: isMobile ? "auto" : undefined,
+                    marginRight: isMobile ? "auto" : undefined,
                     marginBottom: `${GAP}%`,
                   }}
                 >
