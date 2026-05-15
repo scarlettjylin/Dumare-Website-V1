@@ -480,13 +480,13 @@ function Nav() {
         <Logo />
         <a
           href="#waitlist"
-          className={`text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 ${
+          className={`text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-colors duration-300 ${
             scrolled
               ? "bg-primary text-primary-foreground hover:opacity-90"
               : "text-foreground/75 border border-border/60 hover:text-primary hover:border-primary/50"
           }`}
         >
-          Free Early Access →
+          <span className="hidden md:inline">Free </span>Early Access →
         </a>
       </div>
     </header>
