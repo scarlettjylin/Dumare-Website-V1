@@ -282,12 +282,12 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
-  const ITEM = isMobile ? 40 : 45;
+  const ITEM = isMobile ? 28 : 45;
   const GAP = 4;
   const STEP = ITEM + GAP;
   const OFFSET = (100 - ITEM) / 2;
   return (
-    <div className="relative aspect-[3/4] md:aspect-[4/5]">
+    <div className="relative aspect-[4/3] md:aspect-[4/5]">
       {/* iPad-style device frame */}
       <div className="absolute inset-0 rounded-[2rem] md:rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-2.5 md:p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
         {/* speaker dot */}
