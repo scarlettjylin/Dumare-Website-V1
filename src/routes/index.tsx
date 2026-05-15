@@ -341,8 +341,8 @@ export const Route = createFileRoute("/")({
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { property: "og:image", content: "https://yourdomain.com/og-image.jpg" },
-      { property: "og:url", content: "https://yourdomain.com/" },
+      { property: "og:image", content: "https://dumare.me/og-image.jpg" },
+      { property: "og:url", content: "https://dumare.me/" },
       // Twitter / X
       { name: "twitter:title", content: "Dumaré — Discover African stories, made personal" },
       {
@@ -350,7 +350,7 @@ export const Route = createFileRoute("/")({
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { name: "twitter:image", content: "https://yourdomain.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://dumare.me/og-image.jpg" },
     ],
   }),
   component: Landing,
@@ -691,27 +691,28 @@ function AiTypingLine({ text, onStart }: { text: string; onStart?: () => void })
   const [started, setStarted] = useState(false);
   const [count, setCount] = useState(0);
 
-  // scrollend fires after the snap animation has fully settled — the most
-  // reliable trigger for snap-scroll sections. Once visible=true it never
-  // re-fires (the listener is removed and the effect bails early).
+  // IntersectionObserver triggers as soon as the section is 45% visible —
+  // works reliably on mobile where scrollend fires too late.
   useEffect(() => {
-    if (visible) return; // already triggered — nothing to do
+    if (visible) return;
     const el = ref.current;
     if (!el) return;
 
-    const check = () => {
-      const section =
-        (el.closest(".snap-section, .snap-hero") as Element | null) ?? el;
-      const { top } = section.getBoundingClientRect();
-      // Top within 15 % of vh means this section is the snapped-in one
-      if (Math.abs(top) < window.innerHeight * 0.15) {
-        setVisible(true);
-      }
-    };
+    const section =
+      (el.closest(".snap-section, .snap-hero") as Element | null) ?? el;
 
-    check(); // handle already-visible on first paint
-    window.addEventListener("scrollend", check, { passive: true });
-    return () => window.removeEventListener("scrollend", check);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.45 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, [visible]);
 
   // Self-contained timer chain — runs once when visible flips to true:
