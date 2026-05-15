@@ -691,15 +691,13 @@ function AiTypingLine({ text, onStart }: { text: string; onStart?: () => void })
   const [started, setStarted] = useState(false);
   const [count, setCount] = useState(0);
 
-  // IntersectionObserver triggers as soon as the section is 45% visible —
-  // works reliably on mobile where scrollend fires too late.
+  // IntersectionObserver on the paragraph itself — fires the moment the text
+  // enters the viewport (threshold 0). Works on mobile where sections are
+  // very tall and scrollend fires far too late.
   useEffect(() => {
     if (visible) return;
     const el = ref.current;
     if (!el) return;
-
-    const section =
-      (el.closest(".snap-section, .snap-hero") as Element | null) ?? el;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -708,10 +706,10 @@ function AiTypingLine({ text, onStart }: { text: string; onStart?: () => void })
           observer.disconnect();
         }
       },
-      { threshold: 0.45 },
+      { threshold: 0, rootMargin: "0px 0px -80px 0px" },
     );
 
-    observer.observe(section);
+    observer.observe(el);
     return () => observer.disconnect();
   }, [visible]);
 
