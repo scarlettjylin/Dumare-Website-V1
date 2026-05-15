@@ -328,9 +328,10 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     className="absolute inset-0 transition-all duration-500"
                     style={{
                       transform: active
-                        ? "scale(1.05) translateY(-2%)"
-                        : `scale(0.91) rotateX(${tiltX}deg)`,
-                      opacity: active ? 1 : 0.38,
+                        ? "scale(1.12) translateY(-3%)"
+                        : `scale(0.84) rotateX(${tiltX}deg)`,
+                      opacity: active ? 1 : 0.28,
+                      filter: active ? "brightness(1.1)" : "brightness(0.55)",
                       transformOrigin: "center center",
                       transformStyle: "preserve-3d",
                     }}
