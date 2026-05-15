@@ -871,11 +871,9 @@ function AiTypingLine({ text, onStart, onFinish }: { text: string; onStart?: () 
   const shown = text.slice(0, count);
   const done = count >= text.length;
 
-  return (
-    <p
-      ref={ref}
-      className="text-logo font-medium text-base md:text-lg leading-relaxed"
-    >
+  // The animated content — used in both mobile and desktop renders.
+  const animatedContent = (
+    <>
       {!started && (
         <Sparkles className="inline-block size-5 text-primary align-[-3px] animate-sparkle-twinkle" />
       )}
@@ -893,7 +891,29 @@ function AiTypingLine({ text, onStart, onFinish }: { text: string; onStart?: () 
           />
         </>
       )}
-    </p>
+    </>
+  );
+
+  return (
+    // On mobile: a relative wrapper reserves the full paragraph height via an
+    // invisible spacer, so content below never shifts as text is typed.
+    // On desktop: normal block flow (the spacer is hidden).
+    <span className="relative block">
+      {/* Mobile-only invisible spacer — full text rendered off-screen to hold height */}
+      <span
+        aria-hidden
+        className="block md:hidden invisible select-none text-logo font-medium text-base leading-relaxed whitespace-pre-wrap"
+      >
+        {text}&thinsp;✦
+      </span>
+      {/* Animated paragraph — absolute overlay on mobile, normal flow on desktop */}
+      <p
+        ref={ref}
+        className="text-logo font-medium text-base md:text-lg leading-relaxed absolute inset-0 md:static md:inset-auto"
+      >
+        {animatedContent}
+      </p>
+    </span>
   );
 }
 
