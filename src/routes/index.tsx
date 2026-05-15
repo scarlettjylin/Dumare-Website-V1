@@ -298,10 +298,14 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
             style={{
               transform: `translateY(${OFFSET - i * STEP}%)`,
               transition: animate ? "transform 620ms cubic-bezier(0.22, 1.4, 0.36, 1)" : "none",
+              perspective: "800px",
             }}
           >
             {loop.map((c, idx) => {
               const active = idx === i;
+              // Cards above active tilt back at top; below tilt back at bottom.
+              const distance = idx - i;
+              const tiltX = active ? 0 : distance > 0 ? -6 : 6;
               return (
                 <div
                   key={idx}
@@ -313,13 +317,24 @@ function ScrollClips({ ready = false }: { ready?: boolean }) {
                 >
                   <div
                     className="absolute inset-0 transition-all duration-500"
-                    style={{ transform: active ? "scale(1)" : "scale(0.96)", opacity: active ? 1 : 0.55 }}
+                    style={{
+                      transform: active
+                        ? "scale(1.05) translateY(-2%)"
+                        : `scale(0.91) rotateX(${tiltX}deg)`,
+                      opacity: active ? 1 : 0.38,
+                      transformOrigin: "center center",
+                      transformStyle: "preserve-3d",
+                    }}
                   >
                     <div className="absolute inset-0 animate-clip-hue">
                       <ClipVisual c={c} variant={idx % CLIPS.length} />
                     </div>
                     <div className="absolute inset-0 grain opacity-30" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    {/* Active card: subtle amber glow ring for depth */}
+                    {active && (
+                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/30 shadow-[0_0_24px_4px_rgba(247,147,30,0.15)]" />
+                    )}
 
                     {/* Play button */}
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -511,18 +526,32 @@ function StorySection({
     const raf = requestAnimationFrame(() => setZoomStarted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  // Image carousel gets its own IntersectionObserver so it starts as soon as
+  // the section enters view — independent of the typing animation chain.
+  const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (!rotation || !animationsReady) return;
-    // First swap at 2 s (feels alive quickly), then every 3.5 s.
-    const first = setTimeout(() => setActiveIdx((i) => (i + 1) % rotation.length), 2000);
-    const id = setInterval(() => {
-      setActiveIdx((i) => (i + 1) % rotation.length);
-    }, 3500);
-    return () => { clearTimeout(first); clearInterval(id); };
-  }, [rotation, animationsReady]);
+    if (!rotation) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    let timers: ReturnType<typeof setTimeout>[] = [];
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        // First swap at 1 s, then every 3.5 s.
+        const first = setTimeout(() => setActiveIdx((i) => (i + 1) % rotation.length), 1000);
+        const interval = setInterval(() => setActiveIdx((i) => (i + 1) % rotation.length), 3500);
+        timers = [first, interval as unknown as ReturnType<typeof setTimeout>];
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(el);
+    return () => { observer.disconnect(); timers.forEach(clearTimeout); };
+  }, [rotation]);
 
   return (
-    <section id={id} className={`relative ${snapScreen ? "snap-section py-12 md:py-0" : "py-12 md:py-16 lg:py-20"}`}>
+    <section ref={sectionRef} id={id} className={`relative ${snapScreen ? "snap-section py-12 md:py-0" : "py-12 md:py-16 lg:py-20"}`}>
       <div className={`relative max-w-7xl mx-auto px-6 lg:px-10 grid md:grid-cols-12 gap-12 lg:gap-20 w-full ${snapScreen ? "items-center" : "items-start"}`}>
         <div className={`md:col-span-8 ${snapScreen ? "" : "md:pt-8 lg:pt-12"} ${reverse ? "md:order-2" : ""}`}>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight max-w-2xl">
