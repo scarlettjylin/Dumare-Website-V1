@@ -289,16 +289,25 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
 
   const loop = [...CLIPS, ...CLIPS, ...CLIPS];
 
-  // ── Mobile: horizontal strip ──────────────────────────────────────────────
-  if (isMobile) {
-    const ITEM_W = 64;   // card width — leaves ~14% peek on each side
-    const GAP_X  = 4;
-    const STEP_X = ITEM_W + GAP_X;
-    const OFFSET_X = (100 - ITEM_W) / 2; // symmetric: 18%
+  // Horizontal layout constants (mobile)
+  const ITEM_W   = 64; // card width as % of container — leaves ~18% peek each side
+  const GAP_X    = 4;
+  const STEP_X   = ITEM_W + GAP_X;
+  const OFFSET_X = (100 - ITEM_W) / 2;
 
-    return (
-      <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
-        {/* Horizontal row — translates left as i grows */}
+  // Vertical layout constants (desktop)
+  const ITEM   = 45;
+  const GAP    = 4;
+  const STEP   = ITEM + GAP;
+  const OFFSET = (100 - ITEM) / 2;
+
+  // Both layouts are always in the DOM — CSS (md:hidden / hidden md:block) picks
+  // which one to show. This avoids a React hydration mismatch from JS-based
+  // conditional rendering (isMobile starts false on the server).
+  return (
+    <>
+      {/* ── Mobile: horizontal strip (hidden on md+) ─────────────────────── */}
+      <div className="md:hidden relative aspect-[5/2] overflow-hidden rounded-2xl">
         <div
           className="absolute inset-0 flex flex-row items-center"
           style={{
@@ -316,7 +325,6 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                 className="shrink-0 relative"
                 style={{ width: `${ITEM_W}%`, marginRight: `${GAP_X}%` }}
               >
-                {/* 16:9 aspect-ratio box */}
                 <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                   <div
                     className="absolute inset-0 rounded-xl overflow-hidden border border-white/5 transition-all duration-500"
@@ -348,20 +356,12 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
             );
           })}
         </div>
-        {/* Left fade — passed cards dissolve away */}
         <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[5%] bg-gradient-to-r from-background/80 to-transparent" />
         <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[5%] bg-gradient-to-l from-background/80 to-transparent" />
       </div>
-    );
-  }
 
-  // ── Desktop: vertical iPad frame (unchanged) ───────────────────────────────
-  const ITEM = 45;
-  const GAP = 4;
-  const STEP = ITEM + GAP;
-  const OFFSET = (100 - ITEM) / 2;
-  return (
-    <div className="relative aspect-[4/5]">
+      {/* ── Desktop: vertical iPad frame (hidden on mobile) ──────────────── */}
+      <div className="hidden md:block relative aspect-[4/5]">
       {/* iPad-style device frame */}
       <div className="absolute inset-0 rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
         <div aria-hidden className="absolute top-2 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-foreground/10" />
@@ -422,6 +422,7 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
         </div>
       </div>
     </div>
+    </>
   );
 }
 
