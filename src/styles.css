@@ -1,0 +1,426 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-logo: var(--logo);
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.13 0.012 60);
+  --foreground: oklch(0.96 0.01 80);
+  --card: oklch(0.17 0.014 60);
+  --card-foreground: oklch(0.96 0.01 80);
+  --primary: oklch(0.82 0.16 75);
+  --primary-foreground: oklch(0.15 0.02 60);
+  --secondary: oklch(0.22 0.02 60);
+  --secondary-foreground: oklch(0.96 0.01 80);
+  --muted: oklch(0.2 0.015 60);
+  --muted-foreground: oklch(0.65 0.02 70);
+  --accent: oklch(0.82 0.16 75);
+  --accent-foreground: oklch(0.15 0.02 60);
+  --border: oklch(0.28 0.02 65 / 50%);
+  --ring: oklch(0.82 0.16 75);
+  /* Logo word-mark color — muted warm gold/olive to match the Dumaré logo. */
+  --logo: oklch(0.7 0.06 95);
+
+  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.28 0.12 65 / 0.45), transparent 70%),
+                   radial-gradient(ellipse 60% 50% at 80% 100%, oklch(0.32 0.14 50 / 0.35), transparent 70%),
+                   linear-gradient(180deg, oklch(0.13 0.012 60), oklch(0.10 0.01 50));
+  --gradient-amber: linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55));
+  --gradient-section: linear-gradient(180deg, transparent, oklch(0.16 0.02 60 / 0.6), transparent);
+  --glow-amber: 0 0 60px oklch(0.82 0.16 75 / 0.25);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--gradient-hero);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  .font-serif { font-family: var(--font-serif); }
+}
+
+@layer utilities {
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-amber { background: var(--gradient-amber); }
+  .bg-gradient-section { background: var(--gradient-section); }
+  .text-gradient-amber {
+    background: var(--gradient-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glow-amber { box-shadow: var(--glow-amber); }
+  .grain::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .grain::after { opacity: 0.06; }
+
+  .hero-glow {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  .hero-glow-1 {
+    top: -10%; left: -5%;
+    width: 55vw; height: 55vw;
+    background: radial-gradient(circle, oklch(0.82 0.16 75 / 0.35), transparent 65%);
+    animation: hero-drift-1 18s ease-in-out infinite;
+  }
+  .hero-glow-2 {
+    bottom: -20%; right: -10%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, oklch(0.65 0.18 45 / 0.28), transparent 65%);
+    animation: hero-drift-2 22s ease-in-out infinite;
+  }
+
+  .hero-beam {
+    position: absolute;
+    top: -30%;
+    width: 60vw; height: 160%;
+    background: linear-gradient(100deg, transparent 40%, oklch(0.82 0.16 75 / 0.10) 50%, transparent 60%);
+    filter: blur(40px);
+    pointer-events: none;
+    transform-origin: top center;
+  }
+  .hero-beam-1 {
+    left: -10%;
+    transform: rotate(12deg);
+    animation: hero-beam-sweep 14s ease-in-out infinite;
+  }
+  .hero-beam-2 {
+    right: -20%;
+    transform: rotate(-18deg);
+    background: linear-gradient(100deg, transparent 40%, oklch(0.7 0.15 55 / 0.08) 50%, transparent 60%);
+    animation: hero-beam-sweep 19s ease-in-out infinite reverse;
+  }
+
+  .hero-vignette {
+    background: radial-gradient(ellipse at center, transparent 40%, oklch(0.08 0.01 50 / 0.7) 100%);
+  }
+
+  /* ── Cinematic ambient layers ─────────────────────────────────────────────
+     All effects are intentionally slow (25–40s), low opacity, and warm-toned
+     so the hero feels alive without ever drawing attention to the motion. */
+
+  .hero-shaft {
+    position: absolute;
+    top: -25%;
+    left: 25%;
+    width: 55vw;
+    height: 150%;
+    background: linear-gradient(
+      180deg,
+      oklch(0.88 0.18 80 / 0.32) 0%,
+      oklch(0.78 0.16 65 / 0.18) 40%,
+      transparent 80%
+    );
+    filter: blur(70px);
+    transform-origin: top center;
+    transform: rotate(-10deg);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: hero-shaft-tilt 22s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .hero-haze {
+    position: absolute;
+    inset: -15%;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 30%, oklch(0.82 0.16 70 / 0.22), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 70%, oklch(0.72 0.16 45 / 0.18), transparent 70%);
+    filter: blur(40px);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: hero-haze-drift 26s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .hero-flicker {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, oklch(0.82 0.18 75 / 0.18), transparent 70%);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    animation: hero-flicker 5.5s ease-in-out infinite;
+    will-change: opacity;
+  }
+
+  .hero-img-drift {
+    animation: hero-img-drift 30s ease-in-out infinite;
+  }
+
+  .hero-section { --scroll-y: 0px; --scroll-progress: 0; }
+  .hero-parallax-img {
+    transform: translate3d(0, calc(var(--scroll-y, 0px) * 0.25), 0) scale(1.05);
+    will-change: transform;
+  }
+  .hero-parallax-glow {
+    position: absolute; inset: 0;
+    transform: translate3d(calc(var(--scroll-y, 0px) * 0.05), calc(var(--scroll-y, 0px) * -0.15), 0);
+    opacity: calc(1 - var(--scroll-progress, 0) * 0.4);
+    will-change: transform, opacity;
+  }
+  .hero-parallax-glow-rev {
+    position: absolute; inset: 0;
+    transform: translate3d(calc(var(--scroll-y, 0px) * -0.06), calc(var(--scroll-y, 0px) * 0.12), 0);
+    opacity: calc(1 - var(--scroll-progress, 0) * 0.5);
+    will-change: transform, opacity;
+  }
+  .hero-parallax-beam {
+    position: absolute; inset: 0;
+    transform: translate3d(calc(var(--scroll-y, 0px) * 0.08), calc(var(--scroll-y, 0px) * -0.2), 0);
+    will-change: transform;
+  }
+  .hero-parallax-beam-rev {
+    position: absolute; inset: 0;
+    transform: translate3d(calc(var(--scroll-y, 0px) * -0.1), calc(var(--scroll-y, 0px) * -0.1), 0);
+    will-change: transform;
+  }
+}
+
+@keyframes hero-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  50% { transform: translate(8%, 6%) scale(1.1); opacity: 1; }
+}
+@keyframes hero-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  50% { transform: translate(-6%, -4%) scale(1.15); opacity: 1; }
+}
+@keyframes hero-beam-sweep {
+  0%, 100% { transform: translateX(-10%) rotate(12deg); opacity: 0.6; }
+  50% { transform: translateX(15%) rotate(12deg); opacity: 1; }
+}
+@keyframes hero-img-drift {
+  0%, 100% { transform: scale(1.05) translate(0, 0); }
+  50% { transform: scale(1.1) translate(-1%, -1%); }
+}
+
+@keyframes hero-shaft-tilt {
+  0%, 100% { transform: rotate(-12deg) translateX(-3%); opacity: 0.75; }
+  50%      { transform: rotate(-2deg)  translateX(8%);  opacity: 1;    }
+}
+
+@keyframes hero-haze-drift {
+  0%, 100% { transform: translate3d(0, 0, 0)      scale(1);    opacity: 0.7; }
+  50%      { transform: translate3d(4%, -2%, 0)   scale(1.1);  opacity: 1;   }
+}
+
+@keyframes hero-flicker {
+  0%, 100% { opacity: 0.4;  }
+  17%      { opacity: 1;    }
+  34%      { opacity: 0.55; }
+  53%      { opacity: 0.95; }
+  71%      { opacity: 0.5;  }
+  88%      { opacity: 0.85; }
+}
+
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-caret-blink {
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes clip-scroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.animate-clip-scroll {
+  animation: clip-scroll 28s linear infinite;
+}
+
+@keyframes clip-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-clip-shimmer {
+  background-size: 220% 220%;
+  animation: clip-shimmer 9s ease-in-out infinite;
+}
+
+@keyframes clip-hue {
+  0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+  50%      { filter: hue-rotate(15deg) saturate(1.1); }
+}
+.animate-clip-hue { animation: clip-hue 10s ease-in-out infinite; }
+
+@keyframes clip-orb {
+  0%   { transform: translate(-20%, -20%) scale(1); opacity: 0.55; }
+  33%  { transform: translate(60%, 10%) scale(1.3); opacity: 0.8; }
+  66%  { transform: translate(20%, 70%) scale(0.9); opacity: 0.5; }
+  100% { transform: translate(-20%, -20%) scale(1); opacity: 0.55; }
+}
+.animate-clip-orb { animation: clip-orb 8s ease-in-out infinite; }
+
+@keyframes play-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.82 0.16 75 / 0.55), 0 10px 40px oklch(0.82 0.16 75 / 0.45); }
+  50%      { box-shadow: 0 0 0 14px oklch(0.82 0.16 75 / 0), 0 10px 40px oklch(0.82 0.16 75 / 0.55); }
+}
+.animate-play-pulse {
+  animation: play-pulse 2.4s ease-out infinite;
+}
+
+/* ===== Varied per-clip animations ===== */
+@keyframes clip-spin { to { transform: rotate(360deg); } }
+.animate-clip-spin { animation: clip-spin 18s linear infinite; }
+
+@keyframes clip-spin-rev { to { transform: rotate(-360deg); } }
+.animate-clip-spin-rev { animation: clip-spin-rev 22s linear infinite; }
+
+@keyframes clip-pan-x {
+  0%, 100% { transform: translateX(-15%) scale(1.2); }
+  50%      { transform: translateX(15%)  scale(1.2); }
+}
+.animate-clip-pan-x { animation: clip-pan-x 7s ease-in-out infinite; }
+
+@keyframes clip-pan-y {
+  0%, 100% { transform: translateY(-12%) scale(1.25); }
+  50%      { transform: translateY(12%)  scale(1.25); }
+}
+.animate-clip-pan-y { animation: clip-pan-y 8s ease-in-out infinite; }
+
+@keyframes clip-zoom {
+  0%, 100% { transform: scale(1.05); filter: brightness(1); }
+  50%      { transform: scale(1.35); filter: brightness(1.15); }
+}
+.animate-clip-zoom { animation: clip-zoom 6s ease-in-out infinite; }
+
+@keyframes clip-stripes {
+  0%   { background-position: 0 0; }
+  100% { background-position: 60px 0; }
+}
+.animate-clip-stripes { animation: clip-stripes 2.4s linear infinite; }
+
+@keyframes clip-flicker {
+  0%, 100%      { opacity: 0.35; }
+  20%, 60%      { opacity: 0.65; }
+  40%, 80%      { opacity: 0.2; }
+}
+.animate-clip-flicker { animation: clip-flicker 3.2s steps(8, end) infinite; }
+
+@keyframes clip-sweep {
+  0%   { transform: translateX(-120%) skewX(-15deg); }
+  100% { transform: translateX(220%)  skewX(-15deg); }
+}
+.animate-clip-sweep { animation: clip-sweep 4.2s ease-in-out infinite; }
+
+@keyframes clip-sweep-v {
+  0%   { transform: translateY(-120%); }
+  100% { transform: translateY(220%); }
+}
+.animate-clip-sweep-v { animation: clip-sweep-v 5s ease-in-out infinite; }
+
+/* Taste profile shapes — slow drift, scale, fade */
+@keyframes taste-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.65; }
+  50%      { transform: translate(18px, -14px) scale(1.08) rotate(8deg); opacity: 1; }
+}
+@keyframes taste-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(0.95) rotate(0deg); opacity: 0.55; }
+  50%      { transform: translate(-22px, 16px) scale(1.05) rotate(-10deg); opacity: 0.95; }
+}
+@keyframes taste-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.5; }
+  33%      { transform: translate(14px, 18px) scale(1.1) rotate(6deg); opacity: 0.9; }
+  66%      { transform: translate(-12px, -10px) scale(0.92) rotate(-6deg); opacity: 0.75; }
+}
+
+/* Page-wide ambient glows that drift slowly to keep the whole page feeling alive */
+@keyframes page-glow-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(4vw, 3vh) scale(1.08); }
+}
+@keyframes page-glow-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-5vw, -2vh) scale(1.06); }
+}
+@keyframes page-glow-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(3vw, -4vh) scale(1.1); }
+}
+.animate-page-glow-a { animation: page-glow-a 22s ease-in-out infinite; }
+.animate-page-glow-b { animation: page-glow-b 28s ease-in-out infinite; }
+.animate-page-glow-c { animation: page-glow-c 32s ease-in-out infinite; }
+
+
+/* Sparkle twinkle — plays for ~1 s before AiTypingLine starts */
+@keyframes sparkle-twinkle {
+  0%   { opacity: 1;   transform: scale(1)   rotate(0deg);  }
+  15%  { opacity: 0.2; transform: scale(1.5) rotate(20deg); }
+  35%  { opacity: 1;   transform: scale(0.8) rotate(-12deg);}
+  55%  { opacity: 0.2; transform: scale(1.4) rotate(15deg); }
+  75%  { opacity: 1;   transform: scale(0.9) rotate(-6deg); }
+  100% { opacity: 1;   transform: scale(1)   rotate(0deg);  }
+}
+.animate-sparkle-twinkle {
+  animation: sparkle-twinkle 0.5s ease-in-out 2; /* 2 × 0.5 s = 1 s */
+}
+/* ─── Full-screen snap scroll ───────────────────────────────────────────────
+   Hero + four story sections each occupy exactly one viewport height.
+   About / Waitlist / Footer remain a single continuous-scroll group.      */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+  /* Story / moment sections — full-screen snap */
+  .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding-top: 4rem; /* clear the fixed nav */
+  }
+
+  /* Hero — already manages its own height & padding */
+  .snap-hero {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  /* Continuous group (About → Footer) — one snap-start anchor at the top */
+  .snap-group {
+    scroll-snap-align: start;
+  }
+}
