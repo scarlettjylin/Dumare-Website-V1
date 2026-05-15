@@ -325,7 +325,7 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                 className="shrink-0 relative"
                 style={{ width: `${ITEM_W}%`, marginRight: `${GAP_X}%` }}
               >
-                <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                <div className="relative w-full overflow-hidden rounded-xl" style={{ paddingBottom: "56.25%" }}>
                   <div
                     className="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500"
                     style={{
