@@ -251,12 +251,12 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
   const [animate, setAnimate] = useState(true);
 
   // isMobile must be declared first — effectiveReady depends on it.
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
-  );
+  // Initialize to false (SSR-safe), then update on client via useEffect.
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const update = () => setIsMobile(mq.matches);
+    update(); // set correct value immediately on mount
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
