@@ -330,8 +330,8 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     className="absolute inset-0 rounded-xl overflow-hidden border border-white/5 transition-all duration-500"
                     style={{
                       transform: active ? "scale(1.06)" : "scale(0.86)",
-                      opacity: active ? 1 : 0.25,
-                      filter: active ? "brightness(1.12)" : "brightness(0.45)",
+                      opacity: active ? 1 : 0.45,
+                      filter: active ? "brightness(1.1)" : "brightness(0.65)",
                     }}
                   >
                     <div className="absolute inset-0 animate-clip-hue">
@@ -339,9 +339,6 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     </div>
                     <div className="absolute inset-0 grain opacity-30" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    {active && (
-                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/30 shadow-[0_0_24px_4px_rgba(247,147,30,0.18)]" />
-                    )}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
