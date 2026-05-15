@@ -895,21 +895,23 @@ function AiTypingLine({ text, onStart, onFinish }: { text: string; onStart?: () 
   );
 
   return (
-    // On mobile: a relative wrapper reserves the full paragraph height via an
-    // invisible spacer, so content below never shifts as text is typed.
-    // On desktop: normal block flow (the spacer is hidden).
-    <span className="relative block">
-      {/* Mobile-only invisible spacer — full text rendered off-screen to hold height */}
+    // CSS grid stacks the invisible spacer and the animated <p> in the same cell
+    // on mobile — the spacer reserves full text height so content below never
+    // shifts. On desktop (md:block) the grid collapses and the <p> flows normally.
+    <span className="grid md:block">
+      {/* Invisible spacer: full text, mobile-only, reserves the eventual paragraph height */}
       <span
         aria-hidden
-        className="block md:hidden invisible select-none text-logo font-medium text-base leading-relaxed whitespace-pre-wrap"
+        className="md:hidden invisible select-none text-logo font-medium text-base leading-relaxed"
+        style={{ gridArea: "1 / 1" }}
       >
-        {text}&thinsp;✦
+        {text}
       </span>
-      {/* Animated paragraph — absolute overlay on mobile, normal flow on desktop */}
+      {/* Animated paragraph — same grid cell as spacer on mobile, normal flow on desktop */}
       <p
         ref={ref}
-        className="text-logo font-medium text-base md:text-lg leading-relaxed absolute inset-0 md:static md:inset-auto"
+        className="text-logo font-medium text-base md:text-lg leading-relaxed"
+        style={{ gridArea: "1 / 1" }}
       >
         {animatedContent}
       </p>
