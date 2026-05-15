@@ -291,12 +291,10 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
 
   // ── Mobile: horizontal strip ──────────────────────────────────────────────
   if (isMobile) {
-    const ITEM_W = 72;   // card width as % of container width
-    const GAP_X  = 5;
+    const ITEM_W = 64;   // card width — leaves ~14% peek on each side
+    const GAP_X  = 4;
     const STEP_X = ITEM_W + GAP_X;
-    // Slight left offset so more of the next (right) card peeks in,
-    // reinforcing the "entering from the right" feel.
-    const OFFSET_X = 10;
+    const OFFSET_X = (100 - ITEM_W) / 2; // symmetric: 18%
 
     return (
       <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
@@ -351,9 +349,8 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
           })}
         </div>
         {/* Left fade — passed cards dissolve away */}
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[12%] bg-gradient-to-r from-background/90 to-transparent" />
-        {/* Right fade — upcoming card peeks in softly */}
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[10%] bg-gradient-to-l from-background/70 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[5%] bg-gradient-to-r from-background/80 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[5%] bg-gradient-to-l from-background/80 to-transparent" />
       </div>
     );
   }
