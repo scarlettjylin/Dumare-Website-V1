@@ -249,6 +249,19 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
 function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean; readyOnMobile?: boolean }) {
   const [i, setI] = useState(0);
   const [animate, setAnimate] = useState(true);
+
+  // isMobile must be declared first — effectiveReady depends on it.
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // On mobile, wait for typing to finish (readyOnMobile). On desktop use ready.
   const effectiveReady = isMobile ? readyOnMobile : ready;
   useEffect(() => {
     if (!effectiveReady) return;
@@ -268,21 +281,13 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
       });
     };
     // Kick off the first transition immediately so the animation visibly
-    // starts the moment `ready` flips — not after one interval has elapsed.
+    // starts the moment effectiveReady flips.
     advance();
     const id = setInterval(advance, 2400);
     return () => clearInterval(id);
   }, [effectiveReady]);
+
   const loop = [...CLIPS, ...CLIPS, ...CLIPS];
-  // Track viewport so we can use a taller card % on mobile (where the container is 4/3, wider).
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
   const ITEM = isMobile ? 55 : 45;
   const GAP = 4;
   const STEP = ITEM + GAP;
