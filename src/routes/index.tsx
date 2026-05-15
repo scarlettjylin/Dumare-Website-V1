@@ -288,19 +288,87 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
   }, [effectiveReady]);
 
   const loop = [...CLIPS, ...CLIPS, ...CLIPS];
-  const ITEM = isMobile ? 55 : 45;
+
+  // ── Mobile: horizontal strip ──────────────────────────────────────────────
+  if (isMobile) {
+    const ITEM_W = 72;   // card width as % of container width
+    const GAP_X  = 5;
+    const STEP_X = ITEM_W + GAP_X;
+    // Slight left offset so more of the next (right) card peeks in,
+    // reinforcing the "entering from the right" feel.
+    const OFFSET_X = 10;
+
+    return (
+      <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
+        {/* Horizontal row — translates left as i grows */}
+        <div
+          className="absolute inset-0 flex flex-row items-center"
+          style={{
+            transform: `translateX(${OFFSET_X - i * STEP_X}%)`,
+            transition: animate
+              ? "transform 620ms cubic-bezier(0.22, 1.4, 0.36, 1)"
+              : "none",
+          }}
+        >
+          {loop.map((c, idx) => {
+            const active = idx === i;
+            return (
+              <div
+                key={idx}
+                className="shrink-0 relative"
+                style={{ width: `${ITEM_W}%`, marginRight: `${GAP_X}%` }}
+              >
+                {/* 16:9 aspect-ratio box */}
+                <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                  <div
+                    className="absolute inset-0 rounded-xl overflow-hidden border border-white/5 transition-all duration-500"
+                    style={{
+                      transform: active ? "scale(1.06)" : "scale(0.86)",
+                      opacity: active ? 1 : 0.25,
+                      filter: active ? "brightness(1.12)" : "brightness(0.45)",
+                    }}
+                  >
+                    <div className="absolute inset-0 animate-clip-hue">
+                      <ClipVisual c={c} variant={idx % CLIPS.length} />
+                    </div>
+                    <div className="absolute inset-0 grain opacity-30" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    {active && (
+                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/30 shadow-[0_0_24px_4px_rgba(247,147,30,0.18)]" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative">
+                        <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
+                        <div className="relative size-12 rounded-full bg-gradient-amber flex items-center justify-center">
+                          <Play className="size-5 text-primary-foreground fill-current ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* Left fade — passed cards dissolve away */}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[12%] bg-gradient-to-r from-background/90 to-transparent" />
+        {/* Right fade — upcoming card peeks in softly */}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[10%] bg-gradient-to-l from-background/70 to-transparent" />
+      </div>
+    );
+  }
+
+  // ── Desktop: vertical iPad frame (unchanged) ───────────────────────────────
+  const ITEM = 45;
   const GAP = 4;
   const STEP = ITEM + GAP;
-  // On mobile: shift active card up so less of the top card peeks in
-  // and the bottom card gets a bit more room. Desktop keeps the symmetric default.
-  const OFFSET = isMobile ? 15 : (100 - ITEM) / 2;
+  const OFFSET = (100 - ITEM) / 2;
   return (
-    <div className="relative aspect-[4/3] md:aspect-[4/5]">
+    <div className="relative aspect-[4/5]">
       {/* iPad-style device frame */}
-      <div className="absolute inset-0 rounded-[2rem] md:rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-2.5 md:p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
-        {/* speaker dot */}
+      <div className="absolute inset-0 rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
         <div aria-hidden className="absolute top-2 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-foreground/10" />
-        <div className="relative w-full h-full rounded-[1.4rem] md:rounded-[1.7rem] overflow-hidden">
+        <div className="relative w-full h-full rounded-[1.7rem] overflow-hidden">
           <div
             className="absolute inset-0 flex flex-col"
             style={{
@@ -311,20 +379,13 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
           >
             {loop.map((c, idx) => {
               const active = idx === i;
-              // Cards above active tilt back at top; below tilt back at bottom.
               const distance = idx - i;
               const tiltX = active ? 0 : distance > 0 ? -6 : 6;
               return (
                 <div
                   key={idx}
-                  className="relative shrink-0 overflow-hidden rounded-xl border border-white/5"
-                  style={{
-                    height: `${ITEM}%`,
-                    width: isMobile ? "82%" : "100%",
-                    marginLeft: isMobile ? "auto" : undefined,
-                    marginRight: isMobile ? "auto" : undefined,
-                    marginBottom: `${GAP}%`,
-                  }}
+                  className="relative shrink-0 w-full overflow-hidden rounded-xl border border-white/5"
+                  style={{ height: `${ITEM}%`, marginBottom: `${GAP}%` }}
                 >
                   <div
                     className="absolute inset-0 transition-all duration-500"
@@ -343,17 +404,14 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     </div>
                     <div className="absolute inset-0 grain opacity-30" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    {/* Active card: subtle amber glow ring for depth */}
                     {active && (
                       <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/30 shadow-[0_0_24px_4px_rgba(247,147,30,0.15)]" />
                     )}
-
-                    {/* Play button */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
-                        <div className="relative size-14 md:size-16 rounded-full bg-gradient-amber flex items-center justify-center">
-                          <Play className="size-6 md:size-7 text-primary-foreground fill-current ml-0.5" />
+                        <div className="relative size-16 rounded-full bg-gradient-amber flex items-center justify-center">
+                          <Play className="size-7 text-primary-foreground fill-current ml-0.5" />
                         </div>
                       </div>
                     </div>
@@ -362,8 +420,6 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
               );
             })}
           </div>
-
-          {/* Edge fades to soften peeking cards */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-background/80 to-transparent" />
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[15%] bg-gradient-to-t from-background/80 to-transparent" />
         </div>
@@ -862,6 +918,60 @@ function About() {
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkoylpjv";
 
+// Disposable / throwaway email domains that are never real signups.
+const DISPOSABLE_DOMAINS = new Set([
+  "mailinator.com","guerrillamail.com","guerrillamail.net","guerrillamail.org",
+  "guerrillamail.biz","guerrillamail.de","guerrillamail.info","sharklasers.com",
+  "grr.la","guerrillamailblock.com","spam4.me","tempmail.com","temp-mail.org",
+  "throwam.com","throwam.net","dispostable.com","yopmail.com","yopmail.fr",
+  "cool.fr.nf","jetable.fr.nf","nospam.ze.tc","nomail.xl.cx","mega.zik.dj",
+  "speed.1s.fr","courriel.fr.nf","moncourrier.fr.nf","monemail.fr.nf",
+  "monmail.fr.nf","fakeinbox.com","mailnull.com","spamgourmet.com",
+  "trashmail.com","trashmail.at","trashmail.io","trashmail.me","trashmail.net",
+  "trashmail.org","trashmail.xyz","discard.email","spamfree24.org",
+  "maildrop.cc","spamspot.com","spamthisplease.com","spamhereplease.com",
+  "tempr.email","discard.email","mailnesia.com","mailnull.com",
+  "spamgourmet.net","spamgourmet.org","0-mail.com","0815.ru","0clickemail.com",
+]);
+
+function isValidEmail(email: string): { valid: boolean; reason?: string } {
+  const lower = email.trim().toLowerCase();
+  const atIdx = lower.lastIndexOf("@");
+  if (atIdx < 1) return { valid: false, reason: "Please enter a valid email address." };
+
+  const username = lower.slice(0, atIdx);
+  const domain   = lower.slice(atIdx + 1);
+
+  // Reject usernames made entirely of digits (e.g. 123@...)
+  if (/^\d+$/.test(username)) {
+    return { valid: false, reason: "Please enter a real email address." };
+  }
+
+  // Reject very short usernames (1 char)
+  if (username.length < 2) {
+    return { valid: false, reason: "Please enter a valid email address." };
+  }
+
+  // Reject domains with no dot or no valid TLD
+  const domainParts = domain.split(".");
+  if (domainParts.length < 2 || domainParts[domainParts.length - 1].length < 2) {
+    return { valid: false, reason: "Please enter a valid email address." };
+  }
+
+  // Reject domains made entirely of digits (e.g. @123.com)
+  const domainName = domainParts[0];
+  if (/^\d+$/.test(domainName)) {
+    return { valid: false, reason: "Please enter a real email address." };
+  }
+
+  // Reject known disposable / throwaway providers
+  if (DISPOSABLE_DOMAINS.has(domain)) {
+    return { valid: false, reason: "Please use a real email address — disposable emails won't receive your invite." };
+  }
+
+  return { valid: true };
+}
+
 function Waitlist() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -874,6 +984,14 @@ function Waitlist() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!firstName || !lastName || !email || submitting) return;
+
+    // Validate email before hitting the network
+    const emailCheck = isValidEmail(email);
+    if (!emailCheck.valid) {
+      setError(emailCheck.reason ?? "Please enter a valid email address.");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
