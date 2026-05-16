@@ -1224,7 +1224,7 @@ function Landing() {
         title={<>Stories that actually <span className="italic text-gradient-amber">feel right</span> for you.</>}
         image={sceneTaste}
         images={[sceneTaste, sceneTaste2, sceneTaste3]}
-        mobilePositions={["top center", "center center", "center center"]}
+        mobilePositions={["center 25%", "center center", "center center"]}
         body={
           <>
             <p>
