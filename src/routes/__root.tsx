@@ -108,9 +108,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { property: "og:image", content: `${SITE_URL}/og-image.png` },
+      { property: "og:image", content: `${SITE_URL}/whatsapp.jpg` },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:alt", content: "Dumaré — Discover African stories, made personal" },
       { property: "og:url", content: SITE_URL },
 
       // Twitter / X
@@ -121,7 +123,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { name: "twitter:image", content: `${SITE_URL}/og-image.png` },
+      { name: "twitter:image", content: `${SITE_URL}/whatsapp.jpg` },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
