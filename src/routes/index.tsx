@@ -4,6 +4,7 @@ import { Sparkles, Play } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import sceneTaste from "@/assets/scene-taste.jpg";
 import sceneTaste2 from "@/assets/scene-taste-2.jpg";
+import sceneTaste3 from "@/assets/scene-taste-3.jpg";
 import sceneMoment from "@/assets/scene-moment.jpg";
 import sceneProfile from "@/assets/scene-profile.jpg";
 import dumareLogo from "@/assets/Dumare logo.png";
@@ -567,6 +568,7 @@ function StorySection({
   media,
   reverse = false,
   snapScreen = false,
+  mobilePositions,
   animationsReady = false,
 }: {
   id: string;
@@ -575,6 +577,7 @@ function StorySection({
   body: React.ReactNode;
   image: string;
   images?: string[];
+  mobilePositions?: string[];
   media?: React.ReactNode;
   reverse?: boolean;
   snapScreen?: boolean;
@@ -582,6 +585,15 @@ function StorySection({
 }) {
   const rotation = images && images.length > 1 ? images : null;
   const [activeIdx, setActiveIdx] = useState(0);
+  // isMobile for per-image object-position on mobile only
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   // zoomStarted: lets the first image animate its Ken Burns zoom on mount.
   // Without this, the initial render snaps straight to scale(1.22) with no animation.
   const [zoomStarted, setZoomStarted] = useState(false);
@@ -644,6 +656,7 @@ function StorySection({
                         transform: isActive && zoomStarted ? "scale(1.22)" : "scale(1.14)",
                         transitionDuration: isActive ? "5000ms, 1200ms" : "1200ms, 1200ms",
                         transitionProperty: "transform, opacity",
+                        objectPosition: isMobile && mobilePositions?.[i] ? mobilePositions[i] : undefined,
                       }}
                     />
                   );
@@ -1210,7 +1223,8 @@ function Landing() {
         eyebrow="Understand your taste"
         title={<>Stories that actually <span className="italic text-gradient-amber">feel right</span> for you.</>}
         image={sceneTaste}
-        images={[sceneTaste, sceneTaste2]}
+        images={[sceneTaste, sceneTaste2, sceneTaste3]}
+        mobilePositions={["top center", "center center", "center center"]}
         body={
           <>
             <p>
