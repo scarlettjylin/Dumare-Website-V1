@@ -1185,29 +1185,15 @@ function PageAmbience() {
 
 function Landing() {
   const [tasteReady,         setTasteReady]         = useState(false);
-  const [tasteDone,          setTasteDone]          = useState(false);
   const [lessSearchingReady, setLessSearchingReady] = useState(false);
   const [lessSearchingDone,  setLessSearchingDone]  = useState(false);
   const [momentReady,        setMomentReady]        = useState(false);
-  const [momentDone,         setMomentDone]         = useState(false);
   const [profileReady,       setProfileReady]       = useState(false);
-  const [profileDone,        setProfileDone]        = useState(false);
 
-  // Mobile detection — used to decide which trigger each animation uses.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  // On mobile: animations start only after typing finishes (Done).
-  // On desktop: animations start 1 s after typing begins (Ready).
-  const tasteTrigger         = isMobile ? tasteDone         : tasteReady;
-  const momentTrigger        = isMobile ? momentDone        : momentReady;
-  const profileTrigger       = isMobile ? profileDone       : profileReady;
+  // All animations start 1s after typing begins — same timing on mobile and desktop.
+  const tasteTrigger   = tasteReady;
+  const momentTrigger  = momentReady;
+  const profileTrigger = profileReady;
 
   return (
     <main className="relative">
@@ -1232,7 +1218,7 @@ function Landing() {
               Maybe you're drawn to unconventional filmmakers.<br />
               Or maybe lately you just want to step outside your usual taste.
             </p>
-            <AiTypingLine text="Dumaré learns your preferences over time and brings you stories that fit your taste, not just what's popular." onStart={() => setTasteReady(true)} onFinish={() => setTasteDone(true)} />
+            <AiTypingLine text="Dumaré learns your preferences over time and brings you stories that fit your taste, not just what's popular." onStart={() => setTasteReady(true)} />
           </>
         }
       />
@@ -1269,7 +1255,7 @@ function Landing() {
                 Genres and rankings matter, but they're not enough.{"\n"}
                 Sometimes you’re choosing for a moment, a mood, or the people watching with you.
               </p>
-              <AiTypingLine text="With Dumaré, you can simply describe your mood or moment and instantly get something that fits." onStart={() => setMomentReady(true)} onFinish={() => setMomentDone(true)} />
+              <AiTypingLine text="With Dumaré, you can simply describe your mood or moment and instantly get something that fits." onStart={() => setMomentReady(true)} />
             </div>
           </div>
           <div className="md:col-span-5">
@@ -1293,7 +1279,7 @@ function Landing() {
               Does this sound familiar?{"\n"}
               “We just have completely different taste in movies.”
             </p>
-            <AiTypingLine text="On Dumaré, everyone has a “taste profile.” Seeing how similar your tastes are with friends is fun. Then you decide whether you want a safe choice, or something that might surprise you." onStart={() => setProfileReady(true)} onFinish={() => setProfileDone(true)} />
+            <AiTypingLine text="On Dumaré, everyone has a “taste profile.” Seeing how similar your tastes are with friends is fun. Then you decide whether you want a safe choice, or something that might surprise you." onStart={() => setProfileReady(true)} />
           </>
         }
       />
