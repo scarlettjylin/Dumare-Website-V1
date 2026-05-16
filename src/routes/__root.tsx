@@ -75,7 +75,7 @@ const jsonLd = {
   "@type": "Organization",
   name: "Dumaré",
   description:
-    "AI-powered streaming platform for authentic African films and series. Personalized discovery, exclusive releases, and premiere access.",
+    "Discover films shaped by your taste profile, watch instantly, and share what you love.",
   url: SITE_URL,
   logo: `${SITE_URL}/favicon.png`,
   sameAs: [],
@@ -91,7 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Dumaré is an AI-powered streaming platform for authentic African films and series. Personalized discovery, exclusive releases, and premiere access.",
+          "Discover films shaped by your taste profile, watch instantly, and share what you love.",
       },
       { name: "author", content: "Dumaré" },
       { name: "robots", content: "index, follow" },
@@ -106,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Personalized discovery for authentic African films and series. Join the free waitlist.",
+          "Discover films shaped by your taste profile, watch instantly, and share what you love.",
       },
       { property: "og:image", content: `${SITE_URL}/whatsapp.jpg` },
       { property: "og:image:width", content: "1200" },
@@ -121,7 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "Personalized discovery for authentic African films and series. Join the free waitlist.",
+          "Discover films shaped by your taste profile, watch instantly, and share what you love.",
       },
       { name: "twitter:image", content: `${SITE_URL}/whatsapp.jpg` },
     ],
