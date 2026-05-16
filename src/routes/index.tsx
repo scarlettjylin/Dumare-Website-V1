@@ -440,7 +440,7 @@ export const Route = createFileRoute("/")({
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { property: "og:image", content: "https://dumare.me/og-image.jpg" },
+      { property: "og:image", content: "https://dumare.me/og-image.png" },
       { property: "og:url", content: "https://dumare.me/" },
       // Twitter / X
       { name: "twitter:title", content: "Dumaré — Discover African stories, made personal" },
@@ -449,7 +449,7 @@ export const Route = createFileRoute("/")({
         content:
           "Personalized discovery for authentic African films and series. Join the free waitlist.",
       },
-      { name: "twitter:image", content: "https://dumare.me/og-image.jpg" },
+      { name: "twitter:image", content: "https://dumare.me/og-image.png" },
     ],
   }),
   component: Landing,
