@@ -344,7 +344,16 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                       <div className="relative">
                         <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
                         <div className="relative size-12 rounded-full bg-gradient-amber flex items-center justify-center">
-                          <Play className="size-5 text-primary-foreground fill-current ml-0.5" />
+                          {/* Pure CSS triangle — renders with the background, no JS/SVG delay */}
+                          <div style={{
+                            width: 0,
+                            height: 0,
+                            borderTop: "7px solid transparent",
+                            borderBottom: "7px solid transparent",
+                            borderLeft: "12px solid currentColor",
+                            marginLeft: "3px",
+                            color: "var(--color-primary-foreground, #fff)",
+                          }} />
                         </div>
                       </div>
                     </div>
