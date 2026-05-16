@@ -11,7 +11,7 @@ import {
 import appCss from "../styles.css?url";
 
 // Update this to your actual domain once deployed.
-const SITE_URL = "https://dumare.me";
+const SITE_URL = "https://www.dumare.me";
 
 function NotFoundComponent() {
   return (
