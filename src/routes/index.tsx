@@ -330,7 +330,9 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                   <div
                     className="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500"
                     style={{
-                      transform: active ? "scale(1.06)" : "scale(0.86)",
+                      // Inactive cards stay at scale(1) so the inner always fills the outer 16:9 frame
+                      // — eliminates the dark top/bottom gap that previously appeared during swipe transitions.
+                      transform: active ? "scale(1.06)" : "scale(1)",
                       opacity: active ? 1 : 0.45,
                       filter: active ? "brightness(1.1)" : "brightness(0.65)",
                     }}
