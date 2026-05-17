@@ -523,8 +523,8 @@ function Hero() {
             Discover African stories, <span className="italic text-gradient-amber">made personal.</span>
           </h1>
           <p className="mt-8 text-lg md:text-xl text-logo font-medium max-w-xl leading-relaxed">
-            An AI-powered streaming platform with a growing library of films and series, exclusive
-            releases, and premiere access.
+            An AI-powered streaming platform with a growing library of films and series, built for
+            less searching and more immersive watching.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <a
