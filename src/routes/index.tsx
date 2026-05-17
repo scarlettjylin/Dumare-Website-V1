@@ -339,7 +339,16 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                       <ClipVisual c={c} variant={idx % CLIPS.length} />
                     </div>
                     <div className="absolute inset-0 grain opacity-30" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    {/* Bottom shadow — inline so it paints together with the card image, not after styles.css loads */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%, transparent 100%)",
+                        pointerEvents: "none",
+                      }}
+                    />
                     {/* Play icon — fully inline so it never waits on styles.css or Tailwind utility resolution */}
                     <div
                       style={{
