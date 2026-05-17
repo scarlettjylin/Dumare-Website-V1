@@ -445,6 +445,177 @@ function MobileClipCard({
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DesktopClipCard — single carousel card for the desktop vertical strip
+// inside the iPad-style frame. Same simplified pattern as MobileClipCard,
+// but sized for the desktop column and with the active-card amber ring glow.
+// ─────────────────────────────────────────────────────────────────────────────
+function DesktopClipCard({
+  clip,
+  active,
+  pattern,
+  heightPct,
+  gapPct,
+}: {
+  clip: Clip;
+  active: boolean;
+  pattern: 0 | 1 | 2 | number;
+  heightPct: number;
+  gapPct: number;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        flexShrink: 0,
+        width: "100%",
+        height: `${heightPct}%`,
+        marginBottom: `${gapPct}%`,
+        overflow: "hidden",
+        borderRadius: "0.75rem",
+        border: "1px solid rgba(255, 255, 255, 0.05)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0, right: 0, bottom: 0, left: 0,
+          transform: active ? "scale(1.08) translateY(-2%)" : "scale(0.88)",
+          opacity: active ? 1 : 0.32,
+          filter: active ? "brightness(1.1)" : "brightness(0.6)",
+          transition:
+            "transform 500ms ease-out, opacity 500ms ease-out, filter 500ms ease-out",
+          transformOrigin: "center center",
+          willChange: "transform, opacity, filter",
+        }}
+      >
+        {/* Base color gradient */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            backgroundImage: clip.gradient,
+          }}
+        />
+
+        {/* Pattern overlay — cycled by index so adjacent cards differ */}
+        {pattern === 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              mixBlendMode: "overlay",
+              opacity: 0.5,
+              backgroundImage: `repeating-linear-gradient(45deg, ${clip.accent}77 0 10px, transparent 10px 28px)`,
+            }}
+          />
+        )}
+        {pattern === 1 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              mixBlendMode: "overlay",
+              opacity: 0.55,
+              backgroundImage: `radial-gradient(circle, ${clip.accent}cc 1.4px, transparent 2px)`,
+              backgroundSize: "20px 20px",
+            }}
+          />
+        )}
+        {pattern === 2 && (
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              left: "15%",
+              width: "70%",
+              height: "80%",
+              borderRadius: "50%",
+              filter: "blur(50px)",
+              mixBlendMode: "screen",
+              opacity: 0.75,
+              background: `radial-gradient(circle, ${clip.accent}, transparent 70%)`,
+            }}
+          />
+        )}
+
+        {/* Subtle bottom shadow */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 45%, transparent 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Active-card amber ring glow — spotlight cue for the center card */}
+        {active && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              borderRadius: "0.75rem",
+              boxShadow:
+                "inset 0 0 0 1px oklch(0.82 0.16 75 / 0.3), 0 0 24px 4px oklch(0.82 0.16 75 / 0.15)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        {/* Play icon — same inline pattern as mobile, slightly larger */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transform: "translateZ(0)",
+          }}
+        >
+          <div style={{ position: "relative", width: "4rem", height: "4rem" }}>
+            <div
+              className="animate-play-pulse"
+              style={{
+                position: "absolute",
+                top: 0, right: 0, bottom: 0, left: 0,
+                borderRadius: "9999px",
+                background: "oklch(0.82 0.16 75)",
+              }}
+            />
+            <div
+              style={{
+                position: "relative",
+                width: "4rem",
+                height: "4rem",
+                borderRadius: "9999px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background:
+                  "linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55))",
+              }}
+            >
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderTop: "9px solid transparent",
+                  borderBottom: "9px solid transparent",
+                  borderLeft: "15px solid oklch(0.15 0.02 60)",
+                  marginLeft: "4px",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean; readyOnMobile?: boolean }) {
   const [i, setI] = useState(0);
   const [animate, setAnimate] = useState(true);
@@ -574,68 +745,50 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
         />
       </div>
 
-      {/* ── Desktop: vertical iPad frame (hidden on mobile) ──────────────── */}
+      {/* ── Desktop: vertical iPad frame (simplified) ──────────────────────
+          Same iPad-frame metaphor + vertical slide + active spotlight.
+          Removed: 3D rotateX tilt, hue-rotate animation, shimmer animation,
+                   grain texture, 6-variant ClipVisual.
+          Kept:    iPad frame, top/bottom fade, slide, scale+opacity+brightness,
+                   active ring glow, pulsing play button.                       */}
       <div className="hidden md:block relative aspect-[4/5]">
-      {/* iPad-style device frame */}
-      <div className="absolute inset-0 rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
-        <div aria-hidden className="absolute top-2 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-foreground/10" />
-        <div className="relative w-full h-full rounded-[1.7rem] overflow-hidden">
-          <div
-            className="absolute inset-0 flex flex-col"
-            style={{
-              transform: `translateY(${OFFSET - i * STEP}%)`,
-              transition: animate ? "transform 620ms cubic-bezier(0.22, 1.4, 0.36, 1)" : "none",
-              perspective: "800px",
-            }}
-          >
-            {loop.map((c, idx) => {
-              const active = idx === i;
-              const distance = idx - i;
-              const tiltX = active ? 0 : distance > 0 ? -6 : 6;
-              return (
-                <div
-                  key={idx}
-                  className="relative shrink-0 w-full overflow-hidden rounded-xl border border-white/5"
-                  style={{ height: `${ITEM}%`, marginBottom: `${GAP}%` }}
-                >
-                  <div
-                    className="absolute inset-0 transition-all duration-500"
-                    style={{
-                      transform: active
-                        ? "scale(1.12) translateY(-3%)"
-                        : `scale(0.84) rotateX(${tiltX}deg)`,
-                      opacity: active ? 1 : 0.28,
-                      filter: active ? "brightness(1.1)" : "brightness(0.55)",
-                      transformOrigin: "center center",
-                      transformStyle: "preserve-3d",
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-clip-hue">
-                      <ClipVisual c={c} variant={idx % CLIPS.length} />
-                    </div>
-                    <div className="absolute inset-0 grain opacity-30" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    {active && (
-                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/30 shadow-[0_0_24px_4px_rgba(247,147,30,0.15)]" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
-                        <div className="relative size-16 rounded-full bg-gradient-amber flex items-center justify-center">
-                          <Play className="size-7 text-primary-foreground fill-current ml-0.5" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="absolute inset-0 rounded-[2.4rem] border border-border/60 bg-background/20 backdrop-blur-[1px] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]">
+          <div aria-hidden className="absolute top-2 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-foreground/10" />
+          <div className="relative w-full h-full rounded-[1.7rem] overflow-hidden">
+            <div
+              style={{
+                position: "absolute",
+                top: 0, right: 0, bottom: 0, left: 0,
+                display: "flex",
+                flexDirection: "column",
+                transform: `translateY(${OFFSET - i * STEP}%)`,
+                transition: animate
+                  ? "transform 620ms cubic-bezier(0.22, 1.4, 0.36, 1)"
+                  : "none",
+                willChange: "transform",
+              }}
+            >
+              {loop.map((c, idx) => {
+                const active = idx === i;
+                const pattern = idx % 3; // 0 = stripes, 1 = dots, 2 = soft glow
+                return (
+                  <DesktopClipCard
+                    key={idx}
+                    clip={c}
+                    active={active}
+                    pattern={pattern}
+                    heightPct={ITEM}
+                    gapPct={GAP}
+                  />
+                );
+              })}
+            </div>
+            {/* Top + bottom fade — kept as Tailwind because they don't visually flicker the way bottom-of-card shadow did. Could be inlined if needed. */}
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-background/80 to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[15%] bg-gradient-to-t from-background/80 to-transparent" />
           </div>
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-background/80 to-transparent" />
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[15%] bg-gradient-to-t from-background/80 to-transparent" />
         </div>
       </div>
-    </div>
     </>
   );
 }
