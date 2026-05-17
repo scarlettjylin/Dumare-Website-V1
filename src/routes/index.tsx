@@ -799,9 +799,9 @@ function TasteShapes({ ready = false }: { ready?: boolean }) {
   }, [ready]);
 
   return (
-    <div className="relative aspect-[4/3] md:aspect-[4/5] rounded-2xl overflow-hidden">
+    <div className="relative aspect-[5/2] md:aspect-[4/5] rounded-2xl overflow-hidden">
       <div
-        className="absolute inset-0 grid grid-cols-6 gap-3 sm:gap-4 p-8 sm:p-10 place-items-center"
+        className="absolute inset-0 grid grid-cols-12 md:grid-cols-6 gap-1 md:gap-4 p-3 md:p-10 place-items-center"
         style={{
           WebkitMaskImage:
             "radial-gradient(ellipse at center, black 55%, transparent 100%)",
