@@ -340,22 +340,45 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     </div>
                     <div className="absolute inset-0 grain opacity-30" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        {/* Pulse halo — inline color so it renders before styles.css loads */}
+                    {/* Play icon — fully inline so it never waits on styles.css or Tailwind utility resolution */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        // Force own GPU layer so the icon paints independently of the parent's transform/filter transitions.
+                        transform: "translateZ(0)",
+                        willChange: "transform",
+                      }}
+                    >
+                      <div style={{ position: "relative", width: "3rem", height: "3rem" }}>
+                        {/* Pulse halo — keeps the class for the keyframe animation, but inline color + shape so the static circle is visible from first paint. */}
                         <div
-                          className="absolute inset-0 rounded-full animate-play-pulse"
-                          style={{ background: "oklch(0.82 0.16 75)" }}
-                        />
-                        {/* Orange play button — inline gradient avoids waiting on --gradient-amber */}
-                        <div
-                          className="relative size-12 rounded-full flex items-center justify-center"
+                          className="animate-play-pulse"
                           style={{
+                            position: "absolute",
+                            inset: 0,
+                            borderRadius: "9999px",
+                            background: "oklch(0.82 0.16 75)",
+                          }}
+                        />
+                        {/* Orange play button */}
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "3rem",
+                            height: "3rem",
+                            borderRadius: "9999px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             background:
                               "linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55))",
                           }}
                         >
-                          {/* Pure CSS triangle — dark fallback so it's visible on first paint, before --color-primary-foreground resolves */}
+                          {/* Pure CSS triangle */}
                           <div
                             style={{
                               width: 0,
