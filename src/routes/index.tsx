@@ -342,18 +342,30 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
-                        <div className="absolute inset-0 rounded-full bg-primary animate-play-pulse" />
-                        <div className="relative size-12 rounded-full bg-gradient-amber flex items-center justify-center">
-                          {/* Pure CSS triangle — renders with the background, no JS/SVG delay */}
-                          <div style={{
-                            width: 0,
-                            height: 0,
-                            borderTop: "7px solid transparent",
-                            borderBottom: "7px solid transparent",
-                            borderLeft: "12px solid currentColor",
-                            marginLeft: "3px",
-                            color: "var(--color-primary-foreground, #fff)",
-                          }} />
+                        {/* Pulse halo — inline color so it renders before styles.css loads */}
+                        <div
+                          className="absolute inset-0 rounded-full animate-play-pulse"
+                          style={{ background: "oklch(0.82 0.16 75)" }}
+                        />
+                        {/* Orange play button — inline gradient avoids waiting on --gradient-amber */}
+                        <div
+                          className="relative size-12 rounded-full flex items-center justify-center"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55))",
+                          }}
+                        >
+                          {/* Pure CSS triangle — dark fallback so it's visible on first paint, before --color-primary-foreground resolves */}
+                          <div
+                            style={{
+                              width: 0,
+                              height: 0,
+                              borderTop: "7px solid transparent",
+                              borderBottom: "7px solid transparent",
+                              borderLeft: "12px solid oklch(0.15 0.02 60)",
+                              marginLeft: "3px",
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
