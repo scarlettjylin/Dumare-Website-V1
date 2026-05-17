@@ -1191,7 +1191,12 @@ function Landing() {
         snapScreen
         animationsReady={tasteTrigger}
         eyebrow="Understand your taste"
-        title={<>Stories that actually <span className="italic text-gradient-amber">feel right</span> for you.</>}
+        title={
+          <>
+            <span className="hidden md:inline">Stories that actually <span className="italic text-gradient-amber">feel right</span> for you.</span>
+            <span className="md:hidden">Always remember what you like, and <span className="italic text-gradient-amber">why.</span></span>
+          </>
+        }
         image={sceneTaste}
         images={[sceneTaste, sceneTaste2, sceneTaste3]}
         mobilePositions={["center 25%", "center center", "center center"]}
@@ -1203,13 +1208,13 @@ function Landing() {
               Or maybe lately you just want to step outside your usual taste.
             </p>
             <p className="md:hidden">
-              You know what you like, and it's not always the most popular thing.
+              You may love a movie for its bold perspective, or simply for the color palette.
             </p>
             <div className="hidden md:block">
               <AiTypingLine text="Dumaré learns your preferences over time and brings you stories that fit your taste, not just what's popular." onStart={() => setTasteReady(true)} />
             </div>
             <div className="md:hidden">
-              <AiTypingLine text="Dumaré learns your preferences over time and brings you stories that fit your taste." onStart={() => setTasteReady(true)} />
+              <AiTypingLine text="Dumaré understands the subtle patterns behind your taste, and brings you stories that feel right to you." onStart={() => setTasteReady(true)} />
             </div>
           </>
         }
