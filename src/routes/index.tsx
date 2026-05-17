@@ -1289,7 +1289,7 @@ function Landing() {
               <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly when something feels right, all in one place." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
             </div>
             <div className="md:hidden">
-              <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly when something feels right." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
+              <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
             </div>
           </>
         }
@@ -1307,7 +1307,7 @@ function Landing() {
                 Sometimes you’re choosing for a moment, a mood, or the people watching with you.
               </p>
               <p className="md:hidden">
-                Genres and rankings matter, but they're not enough.
+                Genres and rankings work sometimes. But not every time.
               </p>
               <div className="hidden md:block">
                 <AiTypingLine text="With Dumaré, you can simply describe your mood or moment and instantly get something that fits." onStart={() => setMomentReady(true)} />
