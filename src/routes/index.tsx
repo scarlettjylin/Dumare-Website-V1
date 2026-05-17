@@ -159,8 +159,19 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
   const v = variant % 6;
 
   // Shared base — full-bleed gradient, slowly animated, never exposes edges.
+  // backgroundSize is inlined so the visible portion of the gradient is identical before AND after
+  // styles.css loads. Without this, Tailwind's .animate-clip-shimmer flips bg-size from auto (100%)
+  // to 220% the moment the stylesheet finishes parsing — which visibly shifts where the gradient's
+  // dark and light bands fall, reading as dark shadows along the top/bottom of cards 0 and 2.
   const Base = (
-    <div className="absolute inset-0 animate-clip-shimmer" style={{ backgroundImage: c.gradient }} />
+    <div
+      className="absolute inset-0 animate-clip-shimmer"
+      style={{
+        backgroundImage: c.gradient,
+        backgroundSize: "220% 220%",
+        backgroundPosition: "0% 50%",
+      }}
+    />
   );
 
   if (v === 0) {
@@ -169,8 +180,15 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
       <>
         {Base}
         <div
-          className="absolute inset-y-0 w-1/2 animate-clip-sweep mix-blend-screen"
-          style={{ background: `linear-gradient(90deg, transparent, ${c.accent}66, transparent)` }}
+          className="animate-clip-sweep"
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            width: "50%",
+            mixBlendMode: "screen",
+            background: `linear-gradient(90deg, transparent, ${c.accent}66, transparent)`,
+          }}
         />
       </>
     );
@@ -195,8 +213,14 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
       <>
         {Base}
         <div
-          className="absolute inset-0 mix-blend-overlay opacity-40 animate-clip-stripes"
-          style={{ backgroundImage: `repeating-linear-gradient(45deg, ${c.accent}55 0 10px, transparent 10px 28px)` }}
+          className="animate-clip-stripes"
+          style={{
+            position: "absolute",
+            inset: 0,
+            mixBlendMode: "overlay",
+            opacity: 0.4,
+            backgroundImage: `repeating-linear-gradient(45deg, ${c.accent}55 0 10px, transparent 10px 28px)`,
+          }}
         />
       </>
     );
