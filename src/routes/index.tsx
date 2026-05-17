@@ -271,6 +271,180 @@ function ClipVisual({ c, variant }: { c: Clip; variant: number }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MobileClipCard — single carousel card for the mobile horizontal strip.
+// All visuals are inline so the card renders identically before and after
+// styles.css finishes loading (avoids the "dark layer flashing in" issue we
+// chased through the desktop-vs-mobile asymmetry). Patterns cycle by index
+// so adjacent visible cards always have different patterns + colors.
+// ─────────────────────────────────────────────────────────────────────────────
+function MobileClipCard({
+  clip,
+  active,
+  pattern,
+  widthPct,
+  gapPct,
+}: {
+  clip: Clip;
+  active: boolean;
+  pattern: 0 | 1 | 2 | number;
+  widthPct: number;
+  gapPct: number;
+}) {
+  return (
+    <div
+      style={{
+        flexShrink: 0,
+        position: "relative",
+        width: `${widthPct}%`,
+        marginRight: `${gapPct}%`,
+      }}
+    >
+      {/* 16:9 aspect frame via padding-bottom trick */}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          paddingBottom: "56.25%",
+          overflow: "hidden",
+          borderRadius: "0.75rem",
+        }}
+      >
+        {/* Active/inactive state container — animates opacity, brightness, and a small scale pop */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            borderRadius: "0.75rem",
+            overflow: "hidden",
+            transform: active ? "scale(1.06)" : "scale(1)",
+            opacity: active ? 1 : 0.45,
+            filter: active ? "brightness(1.1)" : "brightness(0.65)",
+            transition:
+              "transform 500ms ease-out, opacity 500ms ease-out, filter 500ms ease-out",
+            willChange: "transform, opacity, filter",
+          }}
+        >
+          {/* Base color gradient — paints from frame 1 (no Tailwind dependency) */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              backgroundImage: clip.gradient,
+            }}
+          />
+
+          {/* Pattern overlay — varies by position so adjacent cards differ */}
+          {pattern === 0 && (
+            // Diagonal stripes (45°)
+            <div
+              style={{
+                position: "absolute",
+                top: 0, right: 0, bottom: 0, left: 0,
+                mixBlendMode: "overlay",
+                opacity: 0.5,
+                backgroundImage: `repeating-linear-gradient(45deg, ${clip.accent}77 0 8px, transparent 8px 22px)`,
+              }}
+            />
+          )}
+          {pattern === 1 && (
+            // Dot grid
+            <div
+              style={{
+                position: "absolute",
+                top: 0, right: 0, bottom: 0, left: 0,
+                mixBlendMode: "overlay",
+                opacity: 0.55,
+                backgroundImage: `radial-gradient(circle, ${clip.accent}cc 1.4px, transparent 2px)`,
+                backgroundSize: "16px 16px",
+              }}
+            />
+          )}
+          {pattern === 2 && (
+            // Soft accent glow — off-center, screen-blended
+            <div
+              style={{
+                position: "absolute",
+                top: "10%",
+                left: "15%",
+                width: "70%",
+                height: "80%",
+                borderRadius: "50%",
+                filter: "blur(40px)",
+                mixBlendMode: "screen",
+                opacity: 0.75,
+                background: `radial-gradient(circle, ${clip.accent}, transparent 70%)`,
+              }}
+            />
+          )}
+
+          {/* Subtle bottom shadow for cinematic feel — inline so it paints with the card */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 45%, transparent 100%)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Play icon — fully inline */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0, right: 0, bottom: 0, left: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: "translateZ(0)",
+            }}
+          >
+            <div style={{ position: "relative", width: "3rem", height: "3rem" }}>
+              {/* Pulse halo (uses .animate-play-pulse keyframe from styles.css; if CSS not yet loaded, simply no animation — the static circle still shows) */}
+              <div
+                className="animate-play-pulse"
+                style={{
+                  position: "absolute",
+                  top: 0, right: 0, bottom: 0, left: 0,
+                  borderRadius: "9999px",
+                  background: "oklch(0.82 0.16 75)",
+                }}
+              />
+              {/* Orange play button */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "3rem",
+                  height: "3rem",
+                  borderRadius: "9999px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background:
+                    "linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55))",
+                }}
+              >
+                {/* Dark CSS triangle */}
+                <div
+                  style={{
+                    width: 0,
+                    height: 0,
+                    borderTop: "7px solid transparent",
+                    borderBottom: "7px solid transparent",
+                    borderLeft: "12px solid oklch(0.15 0.02 60)",
+                    marginLeft: "3px",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean; readyOnMobile?: boolean }) {
   const [i, setI] = useState(0);
   const [animate, setAnimate] = useState(true);
@@ -331,110 +505,73 @@ function ScrollClips({ ready = false, readyOnMobile = false }: { ready?: boolean
   // conditional rendering (isMobile starts false on the server).
   return (
     <>
-      {/* ── Mobile: horizontal strip (hidden on md+) ─────────────────────── */}
-      <div className="md:hidden relative aspect-[5/2] overflow-hidden rounded-2xl">
+      {/* ── Mobile: horizontal strip (rewritten — fully inline styles) ─────
+          All visual styling (gradients, patterns, play icon, edge fades) is
+          inlined so nothing depends on styles.css being parsed first.
+          Adjacent cards always differ in BOTH color (from CLIPS rotation)
+          and pattern (cycled via idx % 3): stripes → dots → soft glow.        */}
+      <div
+        className="md:hidden"
+        style={{
+          position: "relative",
+          width: "100%",
+          aspectRatio: "5 / 2",
+          overflow: "hidden",
+          borderRadius: "1rem",
+        }}
+      >
         <div
-          className="absolute inset-0 flex flex-row items-center"
           style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
             transform: `translateX(${OFFSET_X - i * STEP_X}%)`,
             transition: animate
               ? "transform 620ms cubic-bezier(0.22, 1.4, 0.36, 1)"
               : "none",
+            willChange: "transform",
           }}
         >
           {loop.map((c, idx) => {
             const active = idx === i;
+            const pattern = idx % 3; // 0 = stripes, 1 = dots, 2 = soft glow
             return (
-              <div
+              <MobileClipCard
                 key={idx}
-                className="shrink-0 relative"
-                style={{ width: `${ITEM_W}%`, marginRight: `${GAP_X}%` }}
-              >
-                <div className="relative w-full overflow-hidden rounded-xl" style={{ paddingBottom: "56.25%" }}>
-                  <div
-                    className="absolute inset-0 rounded-xl overflow-hidden transition-all duration-500"
-                    style={{
-                      // Inactive cards stay at scale(1) so the inner always fills the outer 16:9 frame
-                      // — eliminates the dark top/bottom gap that previously appeared during swipe transitions.
-                      transform: active ? "scale(1.06)" : "scale(1)",
-                      opacity: active ? 1 : 0.45,
-                      filter: active ? "brightness(1.1)" : "brightness(0.65)",
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-clip-hue">
-                      <ClipVisual c={c} variant={idx % CLIPS.length} />
-                    </div>
-                    <div className="absolute inset-0 grain opacity-30" />
-                    {/* Bottom shadow — inline so it paints together with the card image, not after styles.css loads */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background:
-                          "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%, transparent 100%)",
-                        pointerEvents: "none",
-                      }}
-                    />
-                    {/* Play icon — fully inline so it never waits on styles.css or Tailwind utility resolution */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        // Force own GPU layer so the icon paints independently of the parent's transform/filter transitions.
-                        transform: "translateZ(0)",
-                        willChange: "transform",
-                      }}
-                    >
-                      <div style={{ position: "relative", width: "3rem", height: "3rem" }}>
-                        {/* Pulse halo — keeps the class for the keyframe animation, but inline color + shape so the static circle is visible from first paint. */}
-                        <div
-                          className="animate-play-pulse"
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            borderRadius: "9999px",
-                            background: "oklch(0.82 0.16 75)",
-                          }}
-                        />
-                        {/* Orange play button */}
-                        <div
-                          style={{
-                            position: "relative",
-                            width: "3rem",
-                            height: "3rem",
-                            borderRadius: "9999px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background:
-                              "linear-gradient(135deg, oklch(0.85 0.17 80), oklch(0.72 0.18 55))",
-                          }}
-                        >
-                          {/* Pure CSS triangle */}
-                          <div
-                            style={{
-                              width: 0,
-                              height: 0,
-                              borderTop: "7px solid transparent",
-                              borderBottom: "7px solid transparent",
-                              borderLeft: "12px solid oklch(0.15 0.02 60)",
-                              marginLeft: "3px",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                clip={c}
+                active={active}
+                pattern={pattern}
+                widthPct={ITEM_W}
+                gapPct={GAP_X}
+              />
             );
           })}
         </div>
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[5%] bg-gradient-to-r from-background/80 to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[5%] bg-gradient-to-l from-background/80 to-transparent" />
+        {/* Edge fades — inline so they paint together with the carousel, not after styles.css. */}
+        <div
+          aria-hidden
+          style={{
+            pointerEvents: "none",
+            position: "absolute",
+            top: 0, bottom: 0, left: 0,
+            width: "5%",
+            background:
+              "linear-gradient(to right, oklch(0.13 0.012 60 / 0.8), transparent)",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            pointerEvents: "none",
+            position: "absolute",
+            top: 0, bottom: 0, right: 0,
+            width: "5%",
+            background:
+              "linear-gradient(to left, oklch(0.13 0.012 60 / 0.8), transparent)",
+          }}
+        />
       </div>
 
       {/* ── Desktop: vertical iPad frame (hidden on mobile) ──────────────── */}
