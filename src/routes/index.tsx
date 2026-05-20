@@ -1860,7 +1860,7 @@ function Landing() {
         snapScreen
         animationsReady={profileTrigger}
         eyebrow="Discover through taste profiles"
-        title={<>The best recommendation comes from someone who <span className="italic text-gradient-amber">thinks like you</span>, or <span className="italic text-gradient-amber">completely unlike you.</span></>}
+        title={<>The best recommendation comes from someone <span className="italic text-gradient-amber">like you</span>, or <span className="italic text-gradient-amber">completely unlike you.</span></>}
         image={sceneTaste}
         reverse
         media={<TasteShapes ready={profileTrigger} />}
