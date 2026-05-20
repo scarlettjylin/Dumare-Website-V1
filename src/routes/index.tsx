@@ -1677,8 +1677,9 @@ function Landing() {
               label: "Slow pacing",
               match: true,
               slot: { top: "38%", right: "-10%" },
-              // Below the right silhouette's head (heads end ~top:30%), on body.
-              mobileSlot: { top: "28%", right: "4%" },
+              // Lift above the right silhouette's head into the sky band —
+              // mirrors Landscape-driven on the opposite top corner.
+              mobileSlot: { top: "8%", right: "4%" },
             },
             {
               label: "Landscape-driven",
@@ -1746,7 +1747,6 @@ function Landing() {
           [
             {
               label: "Mysterious",
-              match: true,
               // Top, anchored center-left in the dark space above lantern.
               mobileSlot: { top: "4%", left: "4%" },
             },
@@ -1759,6 +1759,7 @@ function Landing() {
             },
             {
               label: "Traditional storytelling",
+              match: true,
               // Upper-left edge on the lantern body — the right side of the image
               // is the face from top to chin, so right-anchored tags up here
               // unavoidably land on her cheek/eye. Move to the lantern side.
@@ -1766,7 +1767,6 @@ function Landing() {
             },
             {
               label: "Suspenseful",
-              match: true,
               // Mid-left on lantern, inset between Mysterious (left:4%) and
               // Traditional storytelling (left:16%) to break the flush-left column.
               mobileSlot: { top: "52%", left: "8%" },
