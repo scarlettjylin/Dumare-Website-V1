@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Sparkles, Play } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import sceneTaste from "@/assets/scene-taste.jpg";
@@ -902,6 +902,35 @@ function Hero() {
   );
 }
 
+type TagSlot = { top: string; left?: string; right?: string };
+type SceneTag = {
+  label: string;
+  match?: boolean;
+  /** Optional desktop position override (replaces TAG_SLOTS[i]). */
+  slot?: TagSlot;
+  /** Optional mobile position override (replaces TAG_SLOTS_MOBILE[i]). */
+  mobileSlot?: TagSlot;
+};
+// Desktop: tags bleed past image edges (negative left/right) — fine because the
+// image is in a narrow column with empty page bg outside it.
+const TAG_SLOTS: Array<TagSlot> = [
+  { top: "6%",  left: "-6%"  },
+  { top: "22%", right: "-10%" },
+  { top: "48%", left: "-12%" },
+  { top: "68%", right: "-6%"  },
+  { top: "88%", left: "8%"    },
+];
+// Mobile: image fills viewport, so tags MUST stay inside (positive offsets).
+// Same slot indexing — slot N stays on the same side as desktop but anchored
+// inside the image instead of bleeding off the viewport edge.
+const TAG_SLOTS_MOBILE: Array<TagSlot> = [
+  { top: "4%",  left: "4%"   },
+  { top: "20%", right: "4%"  },
+  { top: "46%", left: "4%"   },
+  { top: "66%", right: "4%"  },
+  { top: "88%", left: "8%"   },
+];
+
 function StorySection({
   id,
   eyebrow,
@@ -913,6 +942,7 @@ function StorySection({
   reverse = false,
   snapScreen = false,
   mobilePositions,
+  imageTags,
   animationsReady = false,
 }: {
   id: string;
@@ -922,6 +952,7 @@ function StorySection({
   image: string;
   images?: string[];
   mobilePositions?: string[];
+  imageTags?: SceneTag[][];
   media?: React.ReactNode;
   reverse?: boolean;
   snapScreen?: boolean;
@@ -946,6 +977,29 @@ function StorySection({
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  // sceneVisible flips true the moment the section first enters the viewport.
+  // Until then, every image is held at opacity 0 and tags are not rendered —
+  // so the FIRST round triggers a real 1200ms opacity transition + tag reveal
+  // (instead of the active image being "born" at opacity 1 with no animation).
+  // Result: first round paces exactly like every subsequent rotation.
+  const [sceneVisible, setSceneVisible] = useState(false);
+
+  // Two-phase tag reveal:
+  //   Phase 1 (0 – 1460 ms):  all tags fade/slide in via scene-tag-in keyframe,
+  //                           rendered in the same neutral style. The viewer
+  //                           sees the AI "scan" the scene.
+  //   Phase 2 (1600 ms+):     matched tags flip to the amber-gradient highlight
+  //                           styling with the Sparkles icon, signalling
+  //                           "these match your taste."
+  // Reset on every rotation so the phase plays fresh per image.
+  const [highlightsOn, setHighlightsOn] = useState(false);
+  useEffect(() => {
+    if (!sceneVisible) return;
+    setHighlightsOn(false);
+    const t = setTimeout(() => setHighlightsOn(true), 1600);
+    return () => clearTimeout(t);
+  }, [activeIdx, sceneVisible]);
+
   // Image carousel gets its own IntersectionObserver so it starts as soon as
   // the section enters view — independent of the typing animation chain.
   const sectionRef = useRef<HTMLElement>(null);
@@ -958,10 +1012,18 @@ function StorySection({
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
-        // First swap at 1 s, then every 3.5 s.
-        const first = setTimeout(() => setActiveIdx((i) => (i + 1) % rotation.length), 1000);
-        const interval = setInterval(() => setActiveIdx((i) => (i + 1) % rotation.length), 3500);
-        timers = [first, interval as unknown as ReturnType<typeof setTimeout>];
+        // Flip sceneVisible IMMEDIATELY so image 0 starts its 1200 ms fade-in
+        // and the tag layer mounts. setInterval naturally fires its first tick
+        // 3.5 s later, so image 0 stays on screen for the same total duration
+        // as every other image (no separate first-tick setTimeout needed —
+        // adding one made it collide with the interval's first fire and skipped
+        // an image).
+        setSceneVisible(true);
+        const interval = setInterval(
+          () => setActiveIdx((i) => (i + 1) % rotation.length),
+          3500,
+        );
+        timers = [interval as unknown as ReturnType<typeof setTimeout>];
       },
       { threshold: 0.25 },
     );
@@ -982,39 +1044,84 @@ function StorySection({
         </div>
         <div className={`md:col-span-4 ${reverse ? "md:order-1" : ""}`}>
           {media ?? (
-            <div className="relative aspect-[4/3] md:aspect-[4/5] rounded-2xl overflow-hidden border border-border">
-              {rotation ? (
-                rotation.map((src, i) => {
-                  const isActive = i === activeIdx;
-                  return (
-                    <img
-                      key={src}
-                      src={src}
-                      alt=""
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-all ease-out"
-                      style={{
-                        opacity: isActive ? 1 : 0,
-                        // zoomStarted defers the active scale so CSS transition
-                        // actually fires on the first image (not an instant snap).
-                        transform: isActive && zoomStarted ? "scale(1.22)" : "scale(1.14)",
-                        transitionDuration: isActive ? "5000ms, 1200ms" : "1200ms, 1200ms",
-                        transitionProperty: "transform, opacity",
-                        objectPosition: isMobile && mobilePositions?.[i] ? mobilePositions[i] : undefined,
-                      }}
-                    />
-                  );
-                })
-              ) : (
-                <img
-                  src={image}
-                  alt=""
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
+            <div className="relative aspect-[4/3] md:aspect-[4/5]">
+              {/* Inner rounded frame — clips images & gradients. Tag slots live
+                  OUTSIDE this frame (on the outer relative div) so they can
+                  float past the image edges. */}
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border border-border">
+                {rotation ? (
+                  rotation.map((src, i) => {
+                    const isActive = i === activeIdx;
+                    return (
+                      <img
+                        key={src}
+                        src={src}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover transition-all ease-out"
+                        style={{
+                          // Both opacity AND transform are gated on sceneVisible so the
+                          // first round triggers a real 0→1 transition (matching every
+                          // subsequent rotation), and the Ken Burns zoom starts from
+                          // its base scale instead of being half-zoomed already.
+                          opacity: sceneVisible && isActive ? 1 : 0,
+                          transform:
+                            isActive && zoomStarted && sceneVisible
+                              ? "scale(1.22)"
+                              : "scale(1.14)",
+                          transitionDuration: isActive ? "5000ms, 1200ms" : "1200ms, 1200ms",
+                          transitionProperty: "transform, opacity",
+                          objectPosition: isMobile && mobilePositions?.[i] ? mobilePositions[i] : undefined,
+                        }}
+                      />
+                    );
+                  })
+                ) : (
+                  <img
+                    src={image}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 ring-1 ring-inset ring-primary/10 rounded-2xl" />
+              </div>
+              {/* Floating scene tags — repositioned per image rotation. The
+                  `key` includes activeIdx so the enter animation re-fires on
+                  each rotation. */}
+              {sceneVisible && imageTags && imageTags[activeIdx] && (
+                <div aria-hidden className="pointer-events-none absolute inset-0">
+                  {imageTags[activeIdx].slice(0, TAG_SLOTS.length).map((tag, i) => {
+                    const slot = isMobile
+                      ? tag.mobileSlot ?? TAG_SLOTS_MOBILE[i]
+                      : tag.slot ?? TAG_SLOTS[i];
+                    return (
+                      <div
+                        key={`${activeIdx}-${i}-${tag.label}`}
+                        className="absolute scene-tag-in"
+                        style={{
+                          top: slot.top,
+                          left: slot.left,
+                          right: slot.right,
+                          animationDelay: `${300 + i * 140}ms`,
+                        }}
+                      >
+                        <div
+                          className={
+                            tag.match && highlightsOn
+                              ? "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap backdrop-blur-md text-primary-foreground bg-gradient-amber border border-primary/60 shadow-[0_0_24px_rgba(217,146,87,0.45)] transition-all duration-500"
+                              : "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap backdrop-blur-md text-white/85 bg-black/40 border border-white/15 transition-all duration-500"
+                          }
+                        >
+                          {tag.match && highlightsOn && <Sparkles className="size-3" />}
+                          {tag.label}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-              <div className="absolute inset-0 ring-1 ring-inset ring-primary/10 rounded-2xl" />
             </div>
           )}
         </div>
@@ -1560,6 +1667,117 @@ function Landing() {
         image={sceneTaste}
         images={[sceneTaste, sceneTaste2, sceneTaste3]}
         mobilePositions={["center 25%", "center center", "center center"]}
+        imageTags={[
+          // ─── IMAGE 1 (silhouettes against landscape) ───────────────────
+          // Mobile wrap: TOP-center → RIGHT-edge → LEFT-edge → RIGHT-center
+          // → BOTTOM-LEFT. Five distinct horizons (4 → 28 → 52 → 76 → 94),
+          // five distinct horizontal anchors (no two share top OR side+offset).
+          [
+            {
+              label: "Slow pacing",
+              match: true,
+              slot: { top: "38%", right: "-10%" },
+              // Below the right silhouette's head (heads end ~top:30%), on body.
+              mobileSlot: { top: "28%", right: "4%" },
+            },
+            {
+              label: "Landscape-driven",
+              // Top of frame, anchored center-left in the sky band above the heads.
+              mobileSlot: { top: "4%", left: "4%" },
+            },
+            {
+              label: "Quiet",
+              match: true,
+              // Mid-left edge, on the left silhouette body (dark, high contrast).
+              mobileSlot: { top: "52%", left: "4%" },
+            },
+            {
+              label: "Emotional tension",
+              // Lower-right, anchored center so it sits between the two silhouette lower bodies.
+              mobileSlot: { top: "76%", right: "4%" },
+            },
+            {
+              label: "Visual storytelling",
+              match: true,
+              // Bottom-left, on the landscape/grass below the characters' feet.
+              mobileSlot: { top: "94%", left: "8%" },
+            },
+          ],
+
+          // ─── IMAGE 2 (woman's face front-facing) ──────────────────────
+          // Mobile wrap for 4 tags: TOP-right → RIGHT (cheek non-match) →
+          // LEFT (chin highlight) → BOTTOM-center-left (highlight, off face).
+          // The two HIGHLIGHTED tags sit in the cleanest off-face zones;
+          // the two non-match tags absorb the unavoidable cheek/hair overlap.
+          [
+            {
+              label: "Emotional depth",
+              match: true,
+              // Swapped with Psychological storytelling per design call:
+              // highlight on the face (mid-right cheek) to feel like the match
+              // is "about her".
+              mobileSlot: { top: "32%", right: "4%" },
+            },
+            {
+              label: "Serious",
+              // Top-right, above her right hair line.
+              mobileSlot: { top: "4%", left: "4%" },
+            },
+            {
+              label: "Character-driven",
+              match: true,
+              slot: { top: "68%", left: "-12%" },
+              // Lower-left edge, at her chin/jaw — mostly off the face center.
+              mobileSlot: { top: "64%", left: "4%" },
+            },
+            {
+              label: "Psychological storytelling",
+              // Swapped with Emotional depth: this non-match tag now sits in the
+              // clean below-chin zone, leaving the cheek slot for the highlight.
+              mobileSlot: { top: "92%", right: "8%" },
+            },
+          ],
+
+          // ─── IMAGE 3 (face profile + lantern) ──────────────────────────
+          // Mobile wrap: TOP-center-left → LEFT (lantern) → LEFT-edge (lantern
+          // middle) → RIGHT-center (chin highlight) → BOTTOM-right edge
+          // (highlight, below face). Lantern side absorbs the middle tags so
+          // the face profile stays clear.
+          [
+            {
+              label: "Mysterious",
+              match: true,
+              // Top, anchored center-left in the dark space above lantern.
+              mobileSlot: { top: "4%", left: "4%" },
+            },
+            {
+              label: "Visual mood over action",
+              match: true,
+              slot: { top: "6%", right: "-6%" },
+              // Bottom-right edge — below her chin, off the face entirely.
+              mobileSlot: { top: "94%", right: "8%" },
+            },
+            {
+              label: "Traditional storytelling",
+              // Upper-left edge on the lantern body — the right side of the image
+              // is the face from top to chin, so right-anchored tags up here
+              // unavoidably land on her cheek/eye. Move to the lantern side.
+              mobileSlot: { top: "30%", left: "16%" },
+            },
+            {
+              label: "Suspenseful",
+              match: true,
+              // Mid-left on lantern, inset between Mysterious (left:4%) and
+              // Traditional storytelling (left:16%) to break the flush-left column.
+              mobileSlot: { top: "52%", left: "8%" },
+            },
+            {
+              label: "Legend-inspired",
+              // Mid-left edge, on the lantern (away from face).
+              mobileSlot: { top: "76%", right: "4%" },
+            },
+          ],
+        ]}
         body={
           <>
             <p className="hidden md:block">
