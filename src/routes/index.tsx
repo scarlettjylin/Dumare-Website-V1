@@ -1833,7 +1833,7 @@ function Landing() {
         body={
           <>
             <p>
-              Your friend says: “Best movie ever.” But for you?
+              Your friend says: “Best movie ever.”<br className="hidden md:inline" /> But for you?
             </p>
             <AiTypingLine text="On Dumaré, everyone has a taste profile you can compare with. Then you decide whether you want a safe choice, or something unexpected." onStart={() => setProfileReady(true)} />
           </>
