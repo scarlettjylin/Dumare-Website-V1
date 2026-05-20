@@ -1658,12 +1658,7 @@ function Landing() {
         snapScreen
         animationsReady={tasteTrigger}
         eyebrow="Understand your taste"
-        title={
-          <>
-            <span className="hidden md:inline">Stories that actually <span className="italic text-gradient-amber">feel right</span> for you.</span>
-            <span className="md:hidden">Always remember what you like, and <span className="italic text-gradient-amber">why.</span></span>
-          </>
-        }
+        title={<>Always remember what you like, and <span className="italic text-gradient-amber">why.</span></>}
         image={sceneTaste}
         images={[sceneTaste, sceneTaste2, sceneTaste3]}
         mobilePositions={["center 25%", "center center", "center center"]}
@@ -1780,20 +1775,10 @@ function Landing() {
         ]}
         body={
           <>
-            <p className="hidden md:block">
-              Maybe you love slow emotional stories.<br />
-              Maybe you're drawn to unconventional filmmakers.<br />
-              Or maybe lately you just want to step outside your usual taste.
+            <p>
+              You may love a movie for its bold perspective,<br className="hidden md:inline" /> or simply for the color palette.
             </p>
-            <p className="md:hidden">
-              You may love a movie for its bold perspective, or simply for the color palette.
-            </p>
-            <div className="hidden md:block">
-              <AiTypingLine text="Dumaré learns your preferences over time and brings you stories that fit your taste, not just what's popular." onStart={() => setTasteReady(true)} />
-            </div>
-            <div className="md:hidden">
-              <AiTypingLine text="Dumaré understands the subtle patterns behind your taste, and brings you stories that feel right to you." onStart={() => setTasteReady(true)} />
-            </div>
+            <AiTypingLine text="Dumaré understands the subtle patterns behind your taste, and brings you stories that feel right to you." onStart={() => setTasteReady(true)} />
           </>
         }
       />
@@ -1809,20 +1794,10 @@ function Landing() {
         reverse
         body={
           <>
-            <p className="hidden md:block whitespace-pre-line">
-              A movie takes time, so you want to make sure it’s worth it.{"\n"}
-              You ask friends, search on social media, and read reviews.{"\n"}
-              Then you look for where to watch.
-            </p>
-            <p className="md:hidden">
+            <p>
               You spend more time searching than actually watching？
             </p>
-            <div className="hidden md:block">
-              <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly when something feels right, all in one place." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
-            </div>
-            <div className="md:hidden">
-              <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
-            </div>
+            <AiTypingLine text="Dumaré does all the work for you. Just scroll through cinematic moments and start watching instantly." onStart={() => setLessSearchingReady(true)} onFinish={() => setLessSearchingDone(true)} />
           </>
         }
       />
@@ -1834,19 +1809,10 @@ function Landing() {
               Tell us the <span className="italic text-gradient-amber">moment:</span> fun movie night, or something deep at 1am.
             </h2>
             <div className="mt-6 md:mt-8 space-y-4 text-base md:text-lg font-medium text-logo leading-relaxed max-w-xl">
-              <p className="hidden md:block whitespace-pre-line">
-                Genres and rankings matter, but they're not enough.{"\n"}
-                Sometimes you’re choosing for a moment, a mood, or the people watching with you.
+              <p>
+                Genres and rankings work sometimes, but not every time.
               </p>
-              <p className="md:hidden">
-                Genres and rankings work sometimes. But not every time.
-              </p>
-              <div className="hidden md:block">
-                <AiTypingLine text="With Dumaré, you can simply describe your mood or moment and instantly get something that fits." onStart={() => setMomentReady(true)} />
-              </div>
-              <div className="md:hidden">
-                <AiTypingLine text="With Dumaré, you can find recommendations for a mood, the people you’re watching with, or anything on your mind." onStart={() => setMomentReady(true)} />
-              </div>
+              <AiTypingLine text="With Dumaré, you can find recommendations for a mood, the people you’re watching with, or anything on your mind." onStart={() => setMomentReady(true)} />
             </div>
           </div>
           <div className="md:col-span-5">
@@ -1866,19 +1832,10 @@ function Landing() {
         media={<TasteShapes ready={profileTrigger} />}
         body={
           <>
-            <p className="hidden md:block whitespace-pre-line">
-              Does this sound familiar?{"\n"}
-              “We just have completely different taste in movies.”
-            </p>
-            <p className="md:hidden">
+            <p>
               Your friend says: “Best movie ever.” But for you?
             </p>
-            <div className="hidden md:block">
-              <AiTypingLine text="On Dumaré, everyone has a “taste profile.” Seeing how similar your tastes are with friends is fun. Then you decide whether you want a safe choice, or something that might surprise you." onStart={() => setProfileReady(true)} />
-            </div>
-            <div className="md:hidden">
-              <AiTypingLine text="On Dumaré, everyone has a taste profile you can compare with. Then you decide whether you want a safe choice, or something unexpected." onStart={() => setProfileReady(true)} />
-            </div>
+            <AiTypingLine text="On Dumaré, everyone has a taste profile you can compare with. Then you decide whether you want a safe choice, or something unexpected." onStart={() => setProfileReady(true)} />
           </>
         }
       />
