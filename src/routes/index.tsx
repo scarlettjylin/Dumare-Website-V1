@@ -1810,7 +1810,7 @@ function Landing() {
             </h2>
             <div className="mt-6 md:mt-8 space-y-4 text-base md:text-lg font-medium text-logo leading-relaxed max-w-xl">
               <p>
-                Genres and rankings work sometimes, but not every time.
+                Genres and rankings work sometimes,<br className="hidden md:inline" /> but not every time.
               </p>
               <AiTypingLine text="With Dumaré, you can find recommendations for a mood, the people you’re watching with, or anything on your mind." onStart={() => setMomentReady(true)} />
             </div>
