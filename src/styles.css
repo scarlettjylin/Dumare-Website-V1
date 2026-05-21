@@ -62,7 +62,6 @@
   html { scroll-behavior: smooth; }
   body {
     background: var(--gradient-hero);
-    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";

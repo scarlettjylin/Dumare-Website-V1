@@ -146,15 +146,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    // Inline dark backgrounds on both <html> and <body> so the page is never
-    // briefly white before styles.css finishes loading. The full radial
-    // --gradient-hero in styles.css still layers over this once parsed; this
-    // value is just the solid base (oklch(0.13 0.012 60)) so nothing flashes.
-    <html lang="en" style={{ background: "oklch(0.13 0.012 60)" }}>
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
-      <body style={{ background: "oklch(0.13 0.012 60)", color: "oklch(0.96 0.01 80)" }}>
+      <body>
         {children}
         <Scripts />
       </body>

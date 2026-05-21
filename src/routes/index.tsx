@@ -820,7 +820,7 @@ function Nav() {
   }, []);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-background/40 border-b border-border/40">
+    <header className="sticky top-0 inset-x-0 z-50 backdrop-blur-md bg-background/40 border-b border-border/40">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
         <Logo />
         <a
@@ -1604,6 +1604,17 @@ function Footer() {
 function PageAmbience() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {/* Viewport-anchored warm hero glow — mirrors the body's --gradient-hero
+          but stays visible on every scroll position (iOS Safari ignores
+          background-attachment: fixed, so we paint it here instead). */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.28 0.12 65 / 0.55), transparent 70%), " +
+            "radial-gradient(ellipse 60% 50% at 80% 100%, oklch(0.32 0.14 50 / 0.45), transparent 70%)",
+        }}
+      />
       {/* warm continuous glows spread across the viewport, drifting slowly */}
       <div
         className="absolute rounded-full blur-3xl bg-primary/[0.12] animate-page-glow-a"
@@ -1621,12 +1632,14 @@ function PageAmbience() {
         className="absolute rounded-full blur-3xl bg-primary/[0.06] animate-page-glow-a"
         style={{ width: "45vw", height: "45vw", top: "55vh", left: "30vw", animationDelay: "-8s" }}
       />
-      {/* page-wide vignette + grain to unify */}
+      {/* page-wide vignette + grain to unify — softened so the warm hero
+          glow shows through on narrow viewports (edge ring used to be 0.55,
+          which on mobile darkened almost the entire screen). */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 50%, transparent 40%, oklch(0.13 0.012 60 / 0.55) 100%)",
+            "radial-gradient(ellipse at 50% 50%, transparent 55%, oklch(0.13 0.012 60 / 0.25) 100%)",
         }}
       />
       <div className="absolute inset-0 grain opacity-[0.12]" />
